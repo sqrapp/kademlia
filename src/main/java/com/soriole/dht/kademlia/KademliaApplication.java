@@ -36,8 +36,10 @@ public class KademliaApplication implements CommandLineRunner {
     //access command line arguments
     @Override
     public void run(String... args) throws Exception {
+    	System.out.println(peerPort);
         Node boostrap1 = new Node(kadId, InetAddress.getByName(peerIp), peerPort);
         JKademliaNode bot1 = new JKademliaNode(peerName, boostrap1);
+        System.out.println(bot1.getPort());
 
         do {
             List peers = bot1.getRoutingTable().getAllNodes();

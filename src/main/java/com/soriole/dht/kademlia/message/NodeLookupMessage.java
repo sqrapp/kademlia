@@ -12,10 +12,8 @@ import com.soriole.dht.kademlia.node.KademliaId;
  * @author Joshua Kissoon
  * @created 20140218
  */
-public class NodeLookupMessage implements Message
+public class NodeLookupMessage extends Message
 {
-
-    private Node origin;
     private KademliaId lookupId;
 
     public static final byte CODE = 0x05;
