@@ -2,6 +2,8 @@ package com.soriole.dht.kademlia.message;
 
 import java.io.DataInputStream;
 import java.io.IOException;
+import java.net.DatagramPacket;
+
 import com.soriole.dht.kademlia.KadServer;
 
 /**
@@ -23,7 +25,7 @@ public interface KademliaMessageFactory
      *
      * @throws java.io.IOException
      */
-    public Message createMessage(byte code, DataInputStream in) throws IOException;
+    public Message createMessage(byte code, DataInputStream in, DatagramPacket packet) throws IOException;
 
     /**
      * Method that returns a receiver to handle a specific type of message

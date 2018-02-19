@@ -9,6 +9,9 @@ import java.io.Serializable;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * A Node in the Kademlia network - Contains basic node network information.
  *
@@ -17,6 +20,8 @@ import java.net.InetSocketAddress;
  * @since 20140202
  */
 public class Node implements Streamable, Serializable {
+	
+	private static final Logger logger = LoggerFactory.getLogger(Node.class);
 
     private KademliaId nodeId;
     private InetAddress inetAddress;
@@ -35,6 +40,10 @@ public class Node implements Streamable, Serializable {
         this.inetAddress = ip;
         this.port = port;
         this.strRep = this.nodeId.toString();
+    }
+    
+    public void setPort(int p) {
+    	this.port = p;
     }
 
     public int getPort() {
@@ -101,6 +110,7 @@ public class Node implements Streamable, Serializable {
         /* Load the IP Address */
         byte[] ip = new byte[4];
         in.readFully(ip);
+        
         this.inetAddress = InetAddress.getByAddress(ip);
 
         /* Read in the port */

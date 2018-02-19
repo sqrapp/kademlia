@@ -13,9 +13,8 @@ import java.io.IOException;
  * @author Joshua Kissoon
  * @created 20140218
  */
-public class AcknowledgeMessage implements Message {
+public class AcknowledgeMessage extends Message {
 
-    private Node origin;
     public static final byte MSG_CODE = 0x01;
 
     public AcknowledgeMessage(Node origin) {

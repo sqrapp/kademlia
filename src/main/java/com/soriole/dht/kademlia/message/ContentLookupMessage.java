@@ -16,12 +16,10 @@ import java.io.IOException;
  * @author Joshua Kissoon
  * @since 20140226
  */
-public class ContentLookupMessage implements Message {
+public class ContentLookupMessage extends Message {
     private static final Logger logger = LoggerFactory.getLogger(ContentLookupMessage.class);
 
     public static final byte MSG_CODE = 0x03;
-
-    private Node origin;
     private GetParameter params;
 
     /**

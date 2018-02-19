@@ -15,19 +15,44 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.util.List;
 
+import javax.sound.sampled.Port;
+
 public class BootstrapTest {
     private static final Logger logger = LoggerFactory.getLogger(BootstrapTest.class);
 
     public static void main(String[] args) {
         try {
 
-            Node boostrap1 = new Node("10000000000000000001", InetAddress.getByName("127.0.0.1"), 10210);
-            JKademliaNode kad1 = new JKademliaNode("Bootstrap Tester", new KademliaId(), 7576);
+            Node boostrap1 = new Node("12345678901234567890", InetAddress.getByName("playground.sireto.com"), 10210);
+            int i = 0;
+            int port = 7578;
+          
+            JKademliaNode kad1 = new JKademliaNode("Bootstrap Tester", new KademliaId(), port);
             logger.info("Bootstrap Tester Id:{}",kad1.getNode().getNodeId().hexRepresentation());
+            try {
             kad1.bootstrap(boostrap1);
+            do {
+            	 List<Node> allNodes = kad1.getRoutingTable().getAllNodes();
+                 logger.info("Peers:{}:{}", allNodes.size(), allNodes);
+                 
+                 for(Node n: allNodes) {
+                 	logger.info("peer:{}:ip:{}:port:{}",n.getNodeId(),n.getSocketAddress(),n.getPort());
+                 	
+                 }
+                 
+                 
+                 Thread.sleep(10000);
+                 
+            } while (true);
+            }catch (Exception e) {
+ 				e.printStackTrace();
+ 			}
+        
+           
+          
+            
 
-            List allNodes = kad1.getRoutingTable().getAllNodes();
-            logger.info("Peers:{}:{}", allNodes.size(), allNodes);
+ 
 
         } catch (IOException e) {
             e.printStackTrace();

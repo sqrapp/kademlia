@@ -14,13 +14,12 @@ import com.soriole.dht.kademlia.util.serializer.JsonSerializer;
  * @author Joshua Kissoon
  * @since 20140225
  */
-public class StoreContentMessage implements Message
+public class StoreContentMessage extends Message
 {
 
     public static final byte CODE = 0x08;
 
     private JKademliaStorageEntry content;
-    private Node origin;
 
     /**
      * @param origin  Where the message came from

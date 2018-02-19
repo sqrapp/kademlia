@@ -27,6 +27,7 @@ repositories {
 	maven { url "https://repo.spring.io/milestone" }
 }
 
+
 jar {
 	baseName = 'kademlia'
 	version =  '1.0.0'

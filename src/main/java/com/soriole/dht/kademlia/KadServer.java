@@ -171,6 +171,8 @@ public class KadServer {
                     byte[] buffer = new byte[DATAGRAM_BUFFER_SIZE];
                     DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
                     socket.receive(packet);
+                    
+//                    logger.info("packet from:" + packet.getAddress() + ":" + packet.getPort());
 
                     /* Lets inform the statistician that we've received some data */
                     this.statistician.receivedData(packet.getLength());
@@ -196,7 +198,7 @@ public class KadServer {
                         int comm = din.readInt();
                         byte messCode = din.readByte();
 
-                        Message msg = messageFactory.createMessage(messCode, din);
+                        Message msg = messageFactory.createMessage(messCode, din, packet);
 
                         /* Get a receiver for this message */
                         Receiver receiver;
@@ -221,6 +223,7 @@ public class KadServer {
                     }
                 } catch (IOException e) {
                     logger.error("Server ran into a problem in listener method.", e.getMessage());
+                    e.printStackTrace();
                 }
             }
         } finally {

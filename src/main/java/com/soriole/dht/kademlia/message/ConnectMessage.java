@@ -12,9 +12,8 @@ import java.io.IOException;
  * @author Joshua Kissoon
  * @created 20140218
  */
-public class ConnectMessage implements Message {
+public class ConnectMessage extends Message {
 
-    private Node origin;
     public static final byte MSG_CODE = 0x02;
 
     public ConnectMessage(Node origin) {
