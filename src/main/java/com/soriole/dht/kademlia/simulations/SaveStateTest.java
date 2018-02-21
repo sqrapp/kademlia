@@ -22,22 +22,22 @@ public class SaveStateTest {
 
             /* Connecting 2 to 1 */
             System.out.println("Connecting Nodes 1 & 2");
-            kad2.bootstrap(kad1.getNode());
+            kad2.bootstrap(kad1.getLocalNode());
             System.out.println(kad1);
             System.out.println(kad2);
 
-            kad3.bootstrap(kad2.getNode());
+            kad3.bootstrap(kad2.getLocalNode());
             System.out.println(kad1);
             System.out.println(kad2);
             System.out.println(kad3);
 
-            kad4.bootstrap(kad2.getNode());
+            kad4.bootstrap(kad2.getLocalNode());
             System.out.println(kad1);
             System.out.println(kad2);
             System.out.println(kad3);
             System.out.println(kad4);
 
-            kad5.bootstrap(kad4.getNode());
+            kad5.bootstrap(kad4.getLocalNode());
 
             System.out.println(kad1);
             System.out.println(kad2);

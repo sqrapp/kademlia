@@ -1,7 +1,10 @@
 package com.soriole.dht.kademlia.message;
 
-public interface Message extends Streamable
+import com.soriole.dht.kademlia.node.Node;
+
+public abstract class Message implements Streamable
 {
+    public Node origin;
 
     /**
      * The unique code for the message type, used to differentiate all messages
@@ -10,5 +13,8 @@ public interface Message extends Streamable
      *
      * @return byte A unique code representing the message type
      * */
-    public byte code();
+    abstract public byte code();
+    public Node getOrigin() {
+        return this.origin;
+    }
 }

@@ -28,17 +28,17 @@ public class AutoRefreshOperation2 implements Simulation
 
             /* Connecting nodes */
             System.out.println("Connecting Nodes");
-            kad2.bootstrap(kad1.getNode());
-            kad3.bootstrap(kad2.getNode());
+            kad2.bootstrap(kad1.getLocalNode());
+            kad3.bootstrap(kad2.getLocalNode());
 
             DHTContentImpl c = new DHTContentImpl(new KademliaId("AS84k678947584567465"), kad1.getOwnerId());
             c.setData("Setting the data");
             kad1.putLocally(c);
 
             System.out.println("\n Content ID: " + c.getKey());
-            System.out.println(kad1.getNode() + " Distance from content: " + kad1.getNode().getNodeId().getDistance(c.getKey()));
-            System.out.println(kad2.getNode() + " Distance from content: " + kad2.getNode().getNodeId().getDistance(c.getKey()));
-            System.out.println(kad3.getNode() + " Distance from content: " + kad3.getNode().getNodeId().getDistance(c.getKey()));
+            System.out.println(kad1.getLocalNode() + " Distance from content: " + kad1.getLocalNode().getNodeId().getDistance(c.getKey()));
+            System.out.println(kad2.getLocalNode() + " Distance from content: " + kad2.getLocalNode().getNodeId().getDistance(c.getKey()));
+            System.out.println(kad3.getLocalNode() + " Distance from content: " + kad3.getLocalNode().getNodeId().getDistance(c.getKey()));
             System.out.println("\nSTORING CONTENT 1 locally on " + kad1.getOwnerId() + "\n\n\n\n");
 
             System.out.println(kad1);

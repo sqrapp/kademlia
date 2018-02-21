@@ -66,7 +66,7 @@ public class NodeLookupOperation implements Operation, Receiver
         this.localNode = localNode;
         this.config = config;
 
-        this.lookupMessage = new NodeLookupMessage(localNode.getNode(), lookupId);
+        this.lookupMessage = new NodeLookupMessage(localNode.getLocalNode(), lookupId);
 
         /**
          * We initialize a TreeMap to store nodes.
@@ -86,7 +86,7 @@ public class NodeLookupOperation implements Operation, Receiver
         try
         {
             /* Set the local node as already asked */
-            nodes.put(this.localNode.getNode(), ASKED);
+            nodes.put(this.localNode.getLocalNode(), ASKED);
 
             /**
              * We add all nodes here instead of the K-Closest because there may be the case that the K-Closest are offline

@@ -16,13 +16,12 @@ import java.io.IOException;
  * @author Joshua Kissoon
  * @since 20140226
  */
-public class ContentMessage implements Message {
+public class ContentMessage extends Message {
     private static final Logger logger = LoggerFactory.getLogger(ContentMessage.class);
 
     public static final byte MSG_CODE = 0x04;
 
     private JKademliaStorageEntry content;
-    private Node origin;
 
     /**
      * @param origin  Where the message came from
@@ -54,10 +53,6 @@ public class ContentMessage implements Message {
         } catch (ClassNotFoundException e) {
             logger.error("ClassNotFoundException when reading StorageEntry;", e);
         }
-    }
-
-    public Node getOrigin() {
-        return this.origin;
     }
 
     public JKademliaStorageEntry getContent() {

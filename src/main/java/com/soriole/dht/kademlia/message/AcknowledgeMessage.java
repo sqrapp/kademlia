@@ -13,9 +13,9 @@ import java.io.IOException;
  * @author Joshua Kissoon
  * @created 20140218
  */
-public class AcknowledgeMessage implements Message {
+public class AcknowledgeMessage extends Message {
+    private Node myNode;
 
-    private Node origin;
     public static final byte MSG_CODE = 0x01;
 
     public AcknowledgeMessage(Node origin) {
@@ -28,16 +28,12 @@ public class AcknowledgeMessage implements Message {
 
     @Override
     public final void fromStream(DataInputStream in) throws IOException {
-        this.origin = new Node(in);
+        this.myNode = new Node(in);
     }
 
     @Override
     public void toStream(DataOutputStream out) throws IOException {
         origin.toStream(out);
-    }
-
-    public Node getOrigin() {
-        return this.origin;
     }
 
     @Override
@@ -48,5 +44,9 @@ public class AcknowledgeMessage implements Message {
     @Override
     public String toString() {
         return "AcknowledgeMessage[origin=" + origin.getNodeId() + "]";
+    }
+
+    public Node getMyNode(){
+        return myNode;
     }
 }

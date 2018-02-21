@@ -36,7 +36,7 @@ public class RoutingTableStateTesting {
             kads[9] = new JKademliaNode("user9", new KademliaId("ASF456789475845674U9"), 18335);
 
             for (int i = 1; i < numKads; i++) {
-                kads[i].bootstrap(kads[0].getNode());
+                kads[i].bootstrap(kads[0].getLocalNode());
             }
 
             /* Lets shut down a node and then try putting a content on the network. We'll then see how the un-responsive contacts work */

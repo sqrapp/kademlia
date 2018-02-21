@@ -42,6 +42,8 @@ public class KadServer {
     private final KademliaMessageFactory messageFactory;
 
     private final KadStatistician statistician;
+    public static int messagesSent=0;
+    public static int messagesReceived=0;
 
     /**
      * Initialize our KadServer
@@ -138,8 +140,10 @@ public class KadServer {
      */
     private void sendMessage(Node to, Message msg, int comm) throws IOException {
         /* Use a try-with resource to auto-close streams after usage */
+
         try (ByteArrayOutputStream bout = new ByteArrayOutputStream(); DataOutputStream dout = new DataOutputStream(bout);) {
             /* Setup the message for transmission */
+            KadServer.messagesSent+=1;
             dout.writeInt(comm);
             dout.writeByte(msg.code());
             msg.toStream(dout);
@@ -153,8 +157,8 @@ public class KadServer {
             /* Everything is good, now create the packet and send it */
             DatagramPacket pkt = new DatagramPacket(data, 0, data.length);
             pkt.setSocketAddress(to.getSocketAddress());
+            logger.debug( "Message Send     : "+String.valueOf(msg.code())+" --> "+pkt.getAddress().toString()+":"+String.valueOf(pkt.getPort()));
             socket.send(pkt);
-
             /* Lets inform the statistician that we've sent some data */
             this.statistician.sentData(data.length);
         }
@@ -168,10 +172,10 @@ public class KadServer {
             while (isRunning) {
                 try {
                     /* Wait for a packet */
+                    KadServer.messagesReceived+=1;
                     byte[] buffer = new byte[DATAGRAM_BUFFER_SIZE];
                     DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
                     socket.receive(packet);
-
                     /* Lets inform the statistician that we've received some data */
                     this.statistician.receivedData(packet.getLength());
 
@@ -196,7 +200,8 @@ public class KadServer {
                         int comm = din.readInt();
                         byte messCode = din.readByte();
 
-                        Message msg = messageFactory.createMessage(messCode, din);
+                        Message msg = messageFactory.createMessage(messCode, din,packet);
+                        logger.debug("Message Received : "+msg.code()+" --> "+packet.getAddress()+":"+String.valueOf(packet.getPort()));
 
                         /* Get a receiver for this message */
                         Receiver receiver;

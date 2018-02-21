@@ -49,7 +49,7 @@ public class NodeLookupReceiver implements Receiver
         List<Node> nodes = this.localNode.getRoutingTable().findClosest(msg.getLookupId(), this.config.k());
 
         /* Respond to the NodeLookupMessage */
-        Message reply = new NodeReplyMessage(this.localNode.getNode(), nodes);
+        Message reply = new NodeReplyMessage(this.localNode.getLocalNode(), nodes);
 
         if (this.server.isRunning())
         {

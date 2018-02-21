@@ -19,9 +19,10 @@ public interface KademliaNode
 {
 
     /**
-     * Schedule the recurring refresh operation
+     * Schedule the recurring refresh operation.
+     * Interval is given in milliseconds
      */
-    public void startRefreshOperation();
+    public void startRefreshOperation(long interval);
 
     /**
      * Stop the recurring refresh operation
@@ -31,8 +32,9 @@ public interface KademliaNode
     /**
      * @return Node The local node for this system
      */
-    public Node getNode();
+    public Node getLocalNode();
 
+    public Node getPublicNode();
     /**
      * @return The KadServer used to send/receive messages
      */

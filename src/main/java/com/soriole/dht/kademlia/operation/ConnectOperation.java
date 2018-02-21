@@ -6,8 +6,9 @@
 package com.soriole.dht.kademlia.operation;
 
 import com.soriole.dht.kademlia.message.Receiver;
+
 import java.io.IOException;
-import com.soriole.dht.kademlia.JKademliaNode;
+
 import com.soriole.dht.kademlia.KadConfiguration;
 import com.soriole.dht.kademlia.KadServer;
 import com.soriole.dht.kademlia.KademliaNode;
@@ -16,10 +17,11 @@ import com.soriole.dht.kademlia.message.AcknowledgeMessage;
 import com.soriole.dht.kademlia.message.ConnectMessage;
 import com.soriole.dht.kademlia.message.Message;
 import com.soriole.dht.kademlia.node.Node;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-public class ConnectOperation implements Operation, Receiver
-{
-
+public class ConnectOperation implements Operation, Receiver {
+    private static Logger logger = LoggerFactory.getLogger(ConnectOperation.class);
     public static final int MAX_CONNECT_ATTEMPTS = 5;       // Try 5 times to connect to a node
 
     private final KadServer server;
@@ -36,8 +38,7 @@ public class ConnectOperation implements Operation, Receiver
      * @param bootstrap Node to use to bootstrap the local node onto the network
      * @param config
      */
-    public ConnectOperation(KadServer server, KademliaNode local, Node bootstrap, KadConfiguration config)
-    {
+    public ConnectOperation(KadServer server, KademliaNode local, Node bootstrap, KadConfiguration config) {
         this.server = server;
         this.localNode = local;
         this.bootstrapNode = bootstrap;
@@ -45,54 +46,14 @@ public class ConnectOperation implements Operation, Receiver
     }
 
     @Override
-    public synchronized void execute() throws IOException
-    {
-        try
-        {
+    public synchronized void execute() throws IOException {
             /* Contact the bootstrap node */
-            this.error = true;
-            this.attempts = 0;
-            Message m = new ConnectMessage(this.localNode.getNode());
+        this.error = true;
+        this.attempts = 0;
+        Message m = new ConnectMessage(this.localNode.getLocalNode());
 
             /* Send a connect message to the bootstrap node */
-            server.sendMessage(this.bootstrapNode, m, this);
-
-            /* If we haven't finished as yet, wait for a maximum of config.operationTimeout() time */
-            int totalTimeWaited = 0;
-            int timeInterval = 50;     // We re-check every 300 milliseconds
-            while (totalTimeWaited < this.config.operationTimeout())
-            {
-                if (error)
-                {
-                    wait(timeInterval);
-                    totalTimeWaited += timeInterval;
-                }
-                else
-                {
-                    break;
-                }
-            }
-            if (error)
-            {
-                /* If we still haven't received any responses by then, do a routing timeout */
-                throw new RoutingException("ConnectOperation: Bootstrap node did not respond: " + bootstrapNode);
-            }
-
-            /* Perform lookup for our own ID to get nodes close to us */
-            Operation lookup = new NodeLookupOperation(this.server, this.localNode, this.localNode.getNode().getNodeId(), this.config);
-            lookup.execute();
-
-            /**
-             * Refresh buckets to get a good routing table
-             * After the above lookup operation, K nodes will be in our routing table,
-             * Now we try to populate all of our buckets.
-             */
-            new BucketRefreshOperation(this.server, this.localNode, this.config).execute();
-        }
-        catch (InterruptedException e)
-        {
-            System.err.println("Connect operation was interrupted. ");
-        }
+        server.sendMessage(this.bootstrapNode, m, this);
     }
 
     /**
@@ -101,17 +62,26 @@ public class ConnectOperation implements Operation, Receiver
      * @param comm
      */
     @Override
-    public synchronized void receive(Message incoming, int comm)
-    {
+    public synchronized void receive(Message incoming, int comm) {
         /* The incoming message will be an acknowledgement message */
         AcknowledgeMessage msg = (AcknowledgeMessage) incoming;
 
         /* The bootstrap node has responded, insert it into our space */
         this.localNode.getRoutingTable().insert(this.bootstrapNode);
 
+
+        Node me = this.localNode.getPublicNode();
+        me.setInetAddress(msg.getMyNode().getInetAddress());
+        me.setPort(msg.getMyNode().getPort());
+        me.setPort(me.getPort());
+
+        localNode.getRoutingTable().setUnresponsiveContact(localNode.getLocalNode());
+        localNode.getRoutingTable().insert(me);
+
+        logger.info("Hurrey!! Bootstrap Node has acknowledged us");
+        refresh();
         /* We got a response, so the error is false */
         error = false;
-
         /* Wake up any waiting thread */
         notify();
     }
@@ -121,20 +91,29 @@ public class ConnectOperation implements Operation, Receiver
      * times.
      *
      * @param comm
-     *
      * @throws java.io.IOException
      */
     @Override
-    public synchronized void timeout(int comm) throws IOException
-    {
-        if (++this.attempts < MAX_CONNECT_ATTEMPTS)
-        {
-            this.server.sendMessage(this.bootstrapNode, new ConnectMessage(this.localNode.getNode()), this);
-        }
-        else
-        {
+    public synchronized void timeout(int comm) throws IOException {
+        if (++this.attempts < MAX_CONNECT_ATTEMPTS) {
+            logger.info("Attempt to connect to bootstrap node failed. Retrying..");
+            this.server.sendMessage(this.bootstrapNode, new ConnectMessage(this.localNode.getLocalNode()), this);
+        } else {
             /* We just exit, so notify all other threads that are possibly waiting */
             notify();
         }
     }
+
+    private void refresh() {
+        try {
+            Operation lookup = new NodeLookupOperation(this.server, this.localNode, this.localNode.getPublicNode().getNodeId(), this.config);
+            lookup.execute();
+            new BucketRefreshOperation(this.server, this.localNode, this.config).execute();
+        } catch (IOException e) {
+            logger.warn("Bootstrap Node acknowledged us, but Routing table couldn't be refreshed");
+            e.printStackTrace();
+        }
+    }
 }
+
+

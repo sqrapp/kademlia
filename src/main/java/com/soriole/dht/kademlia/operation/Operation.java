@@ -11,7 +11,6 @@ import com.soriole.dht.kademlia.exceptions.RoutingException;
  */
 public interface Operation
 {
-
     /**
      * Starts an operation and returns when the operation is finished
      *

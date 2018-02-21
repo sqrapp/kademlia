@@ -15,7 +15,6 @@ import com.soriole.dht.kademlia.GetParameter;
 import com.soriole.dht.kademlia.KadConfiguration;
 import com.soriole.dht.kademlia.KadServer;
 import com.soriole.dht.kademlia.JKademliaStorageEntry;
-import com.soriole.dht.kademlia.KademliaStorageEntry;
 import com.soriole.dht.kademlia.exceptions.ContentNotFoundException;
 import com.soriole.dht.kademlia.exceptions.RoutingException;
 import com.soriole.dht.kademlia.exceptions.UnknownMessageException;
@@ -77,7 +76,7 @@ public class ContentLookupOperation implements Operation, Receiver
     public ContentLookupOperation(KadServer server, JKademliaNode localNode, GetParameter params, KadConfiguration config)
     {
         /* Construct our lookup message */
-        this.lookupMessage = new ContentLookupMessage(localNode.getNode(), params);
+        this.lookupMessage = new ContentLookupMessage(localNode.getLocalNode(), params);
 
         this.server = server;
         this.localNode = localNode;
@@ -101,7 +100,7 @@ public class ContentLookupOperation implements Operation, Receiver
         try
         {
             /* Set the local node as already asked */
-            nodes.put(this.localNode.getNode(), ASKED);
+            nodes.put(this.localNode.getLocalNode(), ASKED);
 
             /**
              * We add all nodes here instead of the K-Closest because there may be the case that the K-Closest are offline

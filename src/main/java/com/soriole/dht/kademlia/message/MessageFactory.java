@@ -2,10 +2,15 @@ package com.soriole.dht.kademlia.message;
 
 import java.io.DataInputStream;
 import java.io.IOException;
+import java.net.DatagramPacket;
+import java.net.Socket;
+
 import com.soriole.dht.kademlia.KadConfiguration;
 import com.soriole.dht.kademlia.KadServer;
 import com.soriole.dht.kademlia.KademliaNode;
 import com.soriole.dht.kademlia.KademliaDHT;
+import com.soriole.dht.kademlia.node.Node;
+import com.soriole.dht.kademlia.operation.PingOperation;
 
 /**
  * Handles creating messages and receivers
@@ -28,32 +33,54 @@ public class MessageFactory implements KademliaMessageFactory
     }
 
     @Override
-    public Message createMessage(byte code, DataInputStream in) throws IOException
+    public Message createMessage(byte code, DataInputStream in,DatagramPacket packet) throws IOException
     {
+        Message message=null;
         switch (code)
         {
             case AcknowledgeMessage.MSG_CODE:
-                return new AcknowledgeMessage(in);
+                message = new AcknowledgeMessage(in);
+                break;
             case ConnectMessage.MSG_CODE:
-                return new ConnectMessage(in);
+                message = new ConnectMessage(in);
+                break;
             case ContentMessage.MSG_CODE:
-                return new ContentMessage(in);
+                message = new ContentMessage(in);
+                break;
             case ContentLookupMessage.MSG_CODE:
-                return new ContentLookupMessage(in);
+                message = new ContentLookupMessage(in);
+                break;
             case NodeLookupMessage.CODE:
-                return new NodeLookupMessage(in);
+                message = new NodeLookupMessage(in);
+                break;
             case NodeReplyMessage.CODE:
-                return new NodeReplyMessage(in);
+                message = new NodeReplyMessage(in);
+                break;
             case SimpleMessage.CODE:
-                return new SimpleMessage(in);
+                message = new SimpleMessage(in);
+                break;
             case StoreContentMessage.CODE:
-                return new StoreContentMessage(in);
+                message = new StoreContentMessage(in);
+                break;
+
+            case PingMessage.CODE:
+                message=new PingMessage(in);
+                break;
             default:
                 //System.out.println(this.localNode + " - No Message handler found for message. Code: " + code);
-                return new SimpleMessage(in);
-
+                message = new SimpleMessage(in);
         }
+        if(message.origin!=null) {
+            message.origin.setPort(packet.getPort());
+            message.origin.setInetAddress(packet.getAddress());
+        }
+        else{
+            // this means that the MessageType may not require the origin field so we can keep a random kadid
+            message.origin=new Node("344B457945682B333946",packet.getAddress(),packet.getPort());
+        }
+        return message;
     }
+
 
     @Override
     public Receiver createReceiver(byte code, KadServer server)

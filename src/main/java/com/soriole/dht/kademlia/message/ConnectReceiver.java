@@ -35,11 +35,12 @@ public class ConnectReceiver implements Receiver {
         this.localNode.getRoutingTable().insert(mess.getOrigin());
 
         /* Respond to the connect request */
-        AcknowledgeMessage msg = new AcknowledgeMessage(this.localNode.getNode());
+        AcknowledgeMessage msg = new AcknowledgeMessage(incoming.getOrigin());
 
         /* Reply to the connect message with an Acknowledgement */
         this.server.reply(mess.getOrigin(), msg, comm);
     }
+
 
     /**
      * We don't need to do anything here
@@ -47,6 +48,7 @@ public class ConnectReceiver implements Receiver {
      * @param comm
      * @throws java.io.IOException
      */
+
     @Override
     public void timeout(int comm) throws IOException {
         // Simply ignored

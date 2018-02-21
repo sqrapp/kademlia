@@ -2,6 +2,7 @@ package com.soriole.dht.kademlia.message;
 
 import com.soriole.dht.kademlia.node.Node;
 
+import javax.crypto.Mac;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -12,9 +13,8 @@ import java.io.IOException;
  * @author Joshua Kissoon
  * @created 20140218
  */
-public class ConnectMessage implements Message {
+public class ConnectMessage extends Message {
 
-    private Node origin;
     public static final byte MSG_CODE = 0x02;
 
     public ConnectMessage(Node origin) {
@@ -33,10 +33,6 @@ public class ConnectMessage implements Message {
     @Override
     public void toStream(DataOutputStream out) throws IOException {
         origin.toStream(out);
-    }
-
-    public Node getOrigin() {
-        return this.origin;
     }
 
     @Override

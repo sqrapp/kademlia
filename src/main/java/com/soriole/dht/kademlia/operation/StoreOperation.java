@@ -7,7 +7,6 @@ import com.soriole.dht.kademlia.KadServer;
 import com.soriole.dht.kademlia.KademliaNode;
 import com.soriole.dht.kademlia.JKademliaStorageEntry;
 import com.soriole.dht.kademlia.KademliaDHT;
-import com.soriole.dht.kademlia.KademliaStorageEntry;
 import com.soriole.dht.kademlia.message.Message;
 import com.soriole.dht.kademlia.message.StoreContentMessage;
 import com.soriole.dht.kademlia.node.Node;
@@ -52,12 +51,12 @@ public class StoreOperation implements Operation
         List<Node> nodes = ndlo.getClosestNodes();
 
         /* Create the message */
-        Message msg = new StoreContentMessage(this.localNode.getNode(), this.storageEntry);
+        Message msg = new StoreContentMessage(this.localNode.getLocalNode(), this.storageEntry);
 
         /*Store the message on all of the K-Nodes*/
         for (Node n : nodes)
         {
-            if (n.equals(this.localNode.getNode()))
+            if (n.equals(this.localNode.getLocalNode()))
             {
                 /* Store the content locally */
                 this.localDht.store(this.storageEntry);

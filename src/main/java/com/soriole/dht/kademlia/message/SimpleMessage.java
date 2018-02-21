@@ -10,7 +10,7 @@ import java.io.IOException;
  * @author Joshua Kissoon
  * @created 20140217
  */
-public class SimpleMessage implements Message
+public class SimpleMessage extends Message
 {
 
     /* Message constants */

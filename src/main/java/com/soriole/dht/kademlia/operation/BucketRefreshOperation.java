@@ -43,7 +43,7 @@ public class BucketRefreshOperation implements Operation
         for (int i = 1; i < KademliaId.ID_LENGTH; i++)
         {
             /* Construct a NodeId that is i bits away from the current node Id */
-            final KademliaId current = this.localNode.getNode().getNodeId().generateNodeIdByDistance(i);
+            final KademliaId current = this.localNode.getLocalNode().getNodeId().generateNodeIdByDistance(i);
 
             /* Run the Node Lookup Operation, each in a different thread to speed up things */
             new Thread()

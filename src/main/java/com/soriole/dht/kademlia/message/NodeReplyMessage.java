@@ -14,10 +14,9 @@ import com.soriole.dht.kademlia.node.Node;
  * @author Joshua Kissoon
  * @created 20140218
  */
-public class NodeReplyMessage implements Message
+public class NodeReplyMessage extends Message
 {
 
-    private Node origin;
     public static final byte CODE = 0x06;
     private List<Node> nodes;
 
@@ -68,11 +67,6 @@ public class NodeReplyMessage implements Message
         {
             n.toStream(out);
         }
-    }
-
-    public Node getOrigin()
-    {
-        return this.origin;
     }
 
     @Override

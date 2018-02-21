@@ -38,7 +38,7 @@ public class ContentLookupReceiver implements Receiver {
         if (this.dht.contains(msg.getParameters())) {
             try {
                 /* Return a ContentMessage with the required data */
-                ContentMessage cMsg = new ContentMessage(localNode.getNode(), this.dht.get(msg.getParameters()));
+                ContentMessage cMsg = new ContentMessage(localNode.getLocalNode(), this.dht.get(msg.getParameters()));
                 server.reply(msg.getOrigin(), cMsg, comm);
             } catch (NoSuchElementException ex) {
                 /* @todo Not sure why this exception is thrown here, checkup the system when tests are writtem*/
