@@ -1,6 +1,5 @@
 package com.soriole.dht.kademlia.message;
 
-import com.soriole.dht.kademlia.operation.PingOperation;
 import com.soriole.dht.kademlia.routing.KademliaRoutingTable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,7 +43,7 @@ public class PingMessage extends Message implements Receiver{
     @Override
     public void receive(Message incoming, int conversationId) throws IOException {
         if(((PingMessage)incoming).random==random){
-            logger.info("Ping message acknowledged from "+origin.toDetailString());
+            logger.info("Ping message acknowledged from "+ sender.toDetailString());
         }
         else{
 
@@ -53,6 +52,6 @@ public class PingMessage extends Message implements Receiver{
 
     @Override
     public void timeout(int conversationId) throws IOException {
-        table.setUnresponsiveContact(origin);
+        table.setUnresponsiveContact(sender);
     }
 }

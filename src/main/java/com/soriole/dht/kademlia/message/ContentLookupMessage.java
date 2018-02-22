@@ -1,6 +1,7 @@
 package com.soriole.dht.kademlia.message;
 
 import com.soriole.dht.kademlia.GetParameter;
+import com.soriole.dht.kademlia.node.KademliaId;
 import com.soriole.dht.kademlia.node.Node;
 import com.soriole.dht.kademlia.util.serializer.JsonSerializer;
 import org.slf4j.Logger;
@@ -25,11 +26,11 @@ public class ContentLookupMessage extends Message {
     private GetParameter params;
 
     /**
-     * @param origin The node where this lookup came from
+     * @param sender The node where this lookup came from
      * @param params The parameters used to find the content
      */
-    public ContentLookupMessage(Node origin, GetParameter params) {
-        this.origin = origin;
+    public ContentLookupMessage(Node sender, GetParameter params) {
+        this.sender = sender;
         this.params = params;
     }
 
@@ -41,13 +42,11 @@ public class ContentLookupMessage extends Message {
         return this.params;
     }
 
-    public Node getOrigin() {
-        return this.origin;
-    }
+
 
     @Override
     public void toStream(DataOutputStream out) throws IOException {
-        this.origin.toStream(out);
+        this.sender.getNodeId().toStream(out);
 
         /* Write the params to the stream */
         new JsonSerializer<GetParameter>().write(this.params, out);
@@ -55,7 +54,7 @@ public class ContentLookupMessage extends Message {
 
     @Override
     public final void fromStream(DataInputStream in) throws IOException {
-        this.origin = new Node(in);
+        this.sender.setNodeId( new KademliaId(in));
 
         /* Read the params from the stream */
         try {

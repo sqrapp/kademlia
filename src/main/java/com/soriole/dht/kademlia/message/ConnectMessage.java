@@ -1,8 +1,8 @@
 package com.soriole.dht.kademlia.message;
 
+import com.soriole.dht.kademlia.node.KademliaId;
 import com.soriole.dht.kademlia.node.Node;
 
-import javax.crypto.Mac;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -14,11 +14,10 @@ import java.io.IOException;
  * @created 20140218
  */
 public class ConnectMessage extends Message {
-
     public static final byte MSG_CODE = 0x02;
 
     public ConnectMessage(Node origin) {
-        this.origin = origin;
+        this.sender = origin;
     }
 
     public ConnectMessage(DataInputStream in) throws IOException {
@@ -27,12 +26,12 @@ public class ConnectMessage extends Message {
 
     @Override
     public final void fromStream(DataInputStream in) throws IOException {
-        this.origin = new Node(in);
+        this.sender.setNodeId(new KademliaId(in));
     }
 
     @Override
     public void toStream(DataOutputStream out) throws IOException {
-        origin.toStream(out);
+        sender.getNodeId().toStream(out);
     }
 
     @Override
@@ -42,6 +41,6 @@ public class ConnectMessage extends Message {
 
     @Override
     public String toString() {
-        return "ConnectMessage[origin NodeId=" + origin.getNodeId() + "]";
+        return "ConnectMessage[sender NodeId=" + sender.getNodeId() + "]";
     }
 }

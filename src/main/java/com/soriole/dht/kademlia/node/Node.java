@@ -48,7 +48,9 @@ public class Node implements Streamable, Serializable {
         return this.port;
     }
     public void setPort(int port){this.port=port;}
-
+    public void setNodeId(KademliaId id){
+        this.nodeId=id;
+    }
     /**
      * Load the Node's data from a DataInput stream
      *
@@ -140,6 +142,6 @@ public class Node implements Streamable, Serializable {
         return this.getNodeId().toString();
     }
     public String toDetailString(){
-        return "["+this.getNodeId()+", "+this.getSocketAddress()+"]";
+        return "<"+this.getNodeId()+", "+this.getSocketAddress()+">";
     }
 }

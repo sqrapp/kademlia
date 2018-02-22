@@ -1,6 +1,7 @@
 package com.soriole.dht.kademlia.message;
 
 import com.soriole.dht.kademlia.JKademliaStorageEntry;
+import com.soriole.dht.kademlia.node.KademliaId;
 import com.soriole.dht.kademlia.node.Node;
 import com.soriole.dht.kademlia.util.serializer.JsonSerializer;
 import org.slf4j.Logger;
@@ -29,7 +30,7 @@ public class ContentMessage extends Message {
      */
     public ContentMessage(Node origin, JKademliaStorageEntry content) {
         this.content = content;
-        this.origin = origin;
+        this.sender = origin;
     }
 
     public ContentMessage(DataInputStream in) throws IOException {
@@ -38,7 +39,7 @@ public class ContentMessage extends Message {
 
     @Override
     public void toStream(DataOutputStream out) throws IOException {
-        this.origin.toStream(out);
+        this.sender.getNodeId().toStream(out);
 
         /* Serialize the KadContent, then send it to the stream */
         new JsonSerializer<JKademliaStorageEntry>().write(content, out);
@@ -46,7 +47,7 @@ public class ContentMessage extends Message {
 
     @Override
     public final void fromStream(DataInputStream in) throws IOException {
-        this.origin = new Node(in);
+        this.sender.setNodeId( new KademliaId(in));
 
         try {
             this.content = new JsonSerializer<JKademliaStorageEntry>().read(in);
@@ -66,6 +67,6 @@ public class ContentMessage extends Message {
 
     @Override
     public String toString() {
-        return "ContentMessage[origin=" + origin + ",content=" + content + "]";
+        return "ContentMessage[sender=" + sender + ",content=" + content + "]";
     }
 }

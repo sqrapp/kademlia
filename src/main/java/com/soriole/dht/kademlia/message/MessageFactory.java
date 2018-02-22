@@ -3,14 +3,12 @@ package com.soriole.dht.kademlia.message;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.net.DatagramPacket;
-import java.net.Socket;
 
 import com.soriole.dht.kademlia.KadConfiguration;
 import com.soriole.dht.kademlia.KadServer;
 import com.soriole.dht.kademlia.KademliaNode;
 import com.soriole.dht.kademlia.KademliaDHT;
 import com.soriole.dht.kademlia.node.Node;
-import com.soriole.dht.kademlia.operation.PingOperation;
 
 /**
  * Handles creating messages and receivers
@@ -70,13 +68,14 @@ public class MessageFactory implements KademliaMessageFactory
                 //System.out.println(this.localNode + " - No Message handler found for message. Code: " + code);
                 message = new SimpleMessage(in);
         }
-        if(message.origin!=null) {
-            message.origin.setPort(packet.getPort());
-            message.origin.setInetAddress(packet.getAddress());
+        if(message.sender !=null) {
+            message.sender.setPort(packet.getPort());
+            message.sender.setInetAddress(packet.getAddress());
         }
         else{
-            // this means that the MessageType may not require the origin field so we can keep a random kadid
-            message.origin=new Node("344B457945682B333946",packet.getAddress(),packet.getPort());
+            // this means that the MessageType may not require the sender field so we can keep a random kadid
+            // will be made better in udate
+            message.sender =new Node("344B457945682B333946",packet.getAddress(),packet.getPort());
         }
         return message;
     }

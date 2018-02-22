@@ -31,14 +31,14 @@ public class ConnectReceiver implements Receiver {
     public void receive(Message incoming, int comm) throws IOException {
         ConnectMessage mess = (ConnectMessage) incoming;
 
-        /* Update the local space by inserting the origin node. */
-        this.localNode.getRoutingTable().insert(mess.getOrigin());
+        /* Update the local space by inserting the sender node. */
+        this.localNode.getRoutingTable().insert(mess.getSender());
 
         /* Respond to the connect request */
-        AcknowledgeMessage msg = new AcknowledgeMessage(incoming.getOrigin());
+        AcknowledgeMessage msg = new AcknowledgeMessage(mess.getSender());
 
         /* Reply to the connect message with an Acknowledgement */
-        this.server.reply(mess.getOrigin(), msg, comm);
+        this.server.reply(mess.getSender(), msg, comm);
     }
 
 

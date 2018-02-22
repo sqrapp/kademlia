@@ -69,14 +69,14 @@ public class ConnectOperation implements Operation, Receiver {
         /* The bootstrap node has responded, insert it into our space */
         this.localNode.getRoutingTable().insert(this.bootstrapNode);
 
-
+        // now we have the public ip and port info. thus update it.
         Node me = this.localNode.getPublicNode();
-        me.setInetAddress(msg.getMyNode().getInetAddress());
-        me.setPort(msg.getMyNode().getPort());
+        me.setInetAddress(msg.getReceiver().getInetAddress());
+        me.setPort(msg.getReceiver().getPort());
         me.setPort(me.getPort());
-
-        localNode.getRoutingTable().setUnresponsiveContact(localNode.getLocalNode());
-        localNode.getRoutingTable().insert(me);
+        Node mynode= localNode.getRoutingTable().getAllNodes().get(0);
+        mynode.setInetAddress(me.getInetAddress());
+        mynode.setPort(me.getPort());
 
         logger.info("Hurrey!! Bootstrap Node has acknowledged us");
         refresh();

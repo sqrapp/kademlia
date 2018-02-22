@@ -4,7 +4,8 @@ import com.soriole.dht.kademlia.node.Node;
 
 public abstract class Message implements Streamable
 {
-    public Node origin;
+    public Node sender;
+    public Node receiver;
 
     /**
      * The unique code for the message type, used to differentiate all messages
@@ -14,7 +15,8 @@ public abstract class Message implements Streamable
      * @return byte A unique code representing the message type
      * */
     abstract public byte code();
-    public Node getOrigin() {
-        return this.origin;
+    public final Node getSender() {
+        return this.sender;
     }
+    public final Node getReceiver(){return this.receiver;}
 }

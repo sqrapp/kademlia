@@ -9,6 +9,7 @@ import com.soriole.dht.kademlia.node.Node;
 
 /**
  * Receives a NodeLookupMessage and sends a NodeReplyMessage as reply with the K-Closest nodes to the ID sent.
+ * The received NodeLookMessage contains the sender's node info and the key for performing lookup
  *
  * @author Joshua Kissoon
  * @created 20140219
@@ -31,6 +32,7 @@ public class NodeLookupReceiver implements Receiver
      * Handle receiving a NodeLookupMessage
      * Find the set of K nodes closest to the lookup ID and return them
      *
+     *
      * @param comm
      *
      * @throws java.io.IOException
@@ -38,18 +40,21 @@ public class NodeLookupReceiver implements Receiver
     @Override
     public void receive(Message incoming, int comm) throws IOException
     {
+        // wgot a NodeLookup Message.
         NodeLookupMessage msg = (NodeLookupMessage) incoming;
 
-        Node origin = msg.getOrigin();
+        // get the sender of the message
+        Node origin = msg.getSender();
 
-        /* Update the local space by inserting the origin node. */
+        // insert this node to the routing table if it doesn't exist.
+        // as this might be a newly connecting node.
         this.localNode.getRoutingTable().insert(origin);
 
         /* Find nodes closest to the LookupId */
         List<Node> nodes = this.localNode.getRoutingTable().findClosest(msg.getLookupId(), this.config.k());
 
         /* Respond to the NodeLookupMessage */
-        Message reply = new NodeReplyMessage(this.localNode.getLocalNode(), nodes);
+        Message reply = new NodeReplyMessage(origin, nodes);
 
         if (this.server.isRunning())
         {

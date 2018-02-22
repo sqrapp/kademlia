@@ -249,8 +249,8 @@ public class ContentLookupOperation implements Operation, Receiver
             /* The reply received is a content message with the required content, take it in */
             ContentMessage msg = (ContentMessage) incoming;
 
-            /* Add the origin node to our routing table */
-            this.localNode.getRoutingTable().insert(msg.getOrigin());
+            /* Add the sender node to our routing table */
+            this.localNode.getRoutingTable().insert(msg.getSender());
 
             /* Get the Content and check if it satisfies the required parameters */
             JKademliaStorageEntry content = msg.getContent();
@@ -262,11 +262,11 @@ public class ContentLookupOperation implements Operation, Receiver
             /* The reply received is a NodeReplyMessage with nodes closest to the content needed */
             NodeReplyMessage msg = (NodeReplyMessage) incoming;
 
-            /* Add the origin node to our routing table */
-            Node origin = msg.getOrigin();
+            /* Add the sender node to our routing table */
+            Node origin = msg.getSender();
             this.localNode.getRoutingTable().insert(origin);
 
-            /* Set that we've completed ASKing the origin node */
+            /* Set that we've completed ASKing the sender node */
             this.nodes.put(origin, ASKED);
 
             /* Remove this msg from messagesTransiting since it's completed now */

@@ -120,7 +120,11 @@ public class KademliaConsoleApplication {
                     case "exit":
                         System.exit(0);
                     case "peers":
-                        System.out.println(node.getRoutingTable().getAllNodes());
+                        System.out.print("Peer List : [");
+                        for(Node n:node.getRoutingTable().getAllNodes()){
+                            System.out.print(n.toDetailString()+", ");
+                        }
+                        System.out.println(']');
                         continue;
                     case "info":
                         System.out.println("Routing Table : " + node.getRoutingTable().getAllNodes().toString());

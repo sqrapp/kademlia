@@ -107,7 +107,7 @@ public class KadServer {
                 /* Setup the receiver to handle message response */
                 receivers.put(comm, recv);
                 TimerTask task = new TimeoutTask(comm, recv);
-                timer.schedule(task, this.config.responseTimeout());
+                timer.schedule(task, 20000);
                 tasks.put(comm, task);
             } catch (IllegalStateException ex) {
                 /* The timer is already cancelled so we cannot do anything here really */

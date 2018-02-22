@@ -9,17 +9,17 @@ import java.io.IOException;
 /**
  * A message used to acknowledge a request from a node; can be used in many situations.
  * - Mainly used to acknowledge a connect message
+ * The reply is the node's external ip information
  *
  * @author Joshua Kissoon
  * @created 20140218
  */
 public class AcknowledgeMessage extends Message {
-    private Node myNode;
 
     public static final byte MSG_CODE = 0x01;
 
-    public AcknowledgeMessage(Node origin) {
-        this.origin = origin;
+    public AcknowledgeMessage(Node receiver) {
+        this.receiver=receiver;
     }
 
     public AcknowledgeMessage(DataInputStream in) throws IOException {
@@ -28,12 +28,12 @@ public class AcknowledgeMessage extends Message {
 
     @Override
     public final void fromStream(DataInputStream in) throws IOException {
-        this.myNode = new Node(in);
+        this.receiver = new Node(in);
     }
 
     @Override
     public void toStream(DataOutputStream out) throws IOException {
-        origin.toStream(out);
+        this.receiver.toStream(out);
     }
 
     @Override
@@ -43,10 +43,7 @@ public class AcknowledgeMessage extends Message {
 
     @Override
     public String toString() {
-        return "AcknowledgeMessage[origin=" + origin.getNodeId() + "]";
+        return "AcknowledgeMessage[sender=" + sender.getNodeId() + "]";
     }
 
-    public Node getMyNode(){
-        return myNode;
-    }
 }
