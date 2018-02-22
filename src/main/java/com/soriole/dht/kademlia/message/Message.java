@@ -4,7 +4,7 @@ import com.soriole.dht.kademlia.node.Node;
 
 public abstract class Message implements Streamable
 {
-    public Node sender;
+    public Node sender=new Node();
     public Node receiver;
 
     /**

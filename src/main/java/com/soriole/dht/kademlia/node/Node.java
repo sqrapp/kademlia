@@ -22,7 +22,7 @@ public class Node implements Streamable, Serializable {
     private KademliaId nodeId;
     private InetAddress inetAddress;
     private int port;
-
+    public Node(){}
     public Node copy(){
         try {
             return new Node(nodeId,InetAddress.getByAddress(inetAddress.getAddress()),port);

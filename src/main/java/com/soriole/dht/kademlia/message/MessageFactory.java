@@ -31,11 +31,9 @@ public class MessageFactory implements KademliaMessageFactory
     }
 
     @Override
-    public Message createMessage(byte code, DataInputStream in,DatagramPacket packet) throws IOException
-    {
-        Message message=null;
-        switch (code)
-        {
+    public Message createMessage(byte code, DataInputStream in,DatagramPacket packet) throws IOException {
+        Message message = null;
+        switch (code) {
             case AcknowledgeMessage.MSG_CODE:
                 message = new AcknowledgeMessage(in);
                 break;
@@ -62,21 +60,15 @@ public class MessageFactory implements KademliaMessageFactory
                 break;
 
             case PingMessage.CODE:
-                message=new PingMessage(in);
+                message = new PingMessage(in);
                 break;
             default:
                 //System.out.println(this.localNode + " - No Message handler found for message. Code: " + code);
                 message = new SimpleMessage(in);
         }
-        if(message.sender !=null) {
-            message.sender.setPort(packet.getPort());
-            message.sender.setInetAddress(packet.getAddress());
-        }
-        else{
-            // this means that the MessageType may not require the sender field so we can keep a random kadid
-            // will be made better in udate
-            message.sender =new Node("344B457945682B333946",packet.getAddress(),packet.getPort());
-        }
+        message.sender.setPort(packet.getPort());
+        message.sender.setInetAddress(packet.getAddress());
+
         return message;
     }
 
