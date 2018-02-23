@@ -22,14 +22,18 @@ public class Node implements Streamable, Serializable {
     private KademliaId nodeId;
     private InetAddress inetAddress;
     private int port;
-    public Node(){}
-    public Node copy(){
-        try {
-            return new Node(nodeId,InetAddress.getByAddress(inetAddress.getAddress()),port);
-        } catch (UnknownHostException e) {
-            e.printStackTrace();
-        }
-        return null;
+
+    public Node() {
+    }
+
+    public Node copy() {
+
+        Node n = new Node();
+        n.nodeId = new KademliaId(nodeId.getBytes());
+        n.inetAddress = this.inetAddress;
+        n.port = port;
+        return n;
+
     }
 
     public Node(KademliaId nid, InetAddress ip, int port) {
@@ -47,10 +51,15 @@ public class Node implements Streamable, Serializable {
     public int getPort() {
         return this.port;
     }
-    public void setPort(int port){this.port=port;}
-    public void setNodeId(KademliaId id){
-        this.nodeId=id;
+
+    public void setPort(int port) {
+        this.port = port;
     }
+
+    public void setNodeId(KademliaId id) {
+        this.nodeId = id;
+    }
+
     /**
      * Load the Node's data from a DataInput stream
      *
@@ -141,7 +150,8 @@ public class Node implements Streamable, Serializable {
     public String toString() {
         return this.getNodeId().toString();
     }
-    public String toDetailString(){
-        return this.getNodeId()+" || "+this.getSocketAddress();
+
+    public String toDetailString() {
+        return this.getNodeId() + " || " + this.getSocketAddress();
     }
 }

@@ -10,10 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
-import java.net.Inet4Address;
-import java.net.SocketException;
+import java.net.*;
 import java.util.*;
 
 /**
@@ -58,24 +55,33 @@ public class KadServer {
      */
     public KadServer(JKademliaMessageFactory mFactory, Node localNode, KadConfiguration config, KadStatistician statistician) throws SocketException {
         this.config = config;
-        if (localNode.getInetAddress()!=null)
-            this.socket = new DatagramSocket(localNode.getPort(),localNode.getInetAddress());
-        else
-            this.socket=new DatagramSocket(localNode.getPort());
         this.localNode = localNode.copy();
         this.messageFactory = mFactory;
         this.statistician = statistician;
+
+        if (localNode.getInetAddress()!=null)
+            this.socket = new DatagramSocket(localNode.getPort(),localNode.getInetAddress());
+        else {
+            this.socket = new DatagramSocket(localNode.getPort());
+            // TODO: InetAddress is obtained from name. Instead use "socket.getLocalAddress()":
+            // The problem with that is, it might be ipv6 but this doesn't support the ipv6 addresses
+            try {
+                this.localNode.setInetAddress(Inet4Address.getByName("localhost"));
+            } catch (UnknownHostException e) {
+                e.printStackTrace();
+            }
+
+        }
+        this.localNode.setPort(socket.getLocalPort());
 
         isRunning = true;
         this.tasks = new HashMap<>();
         this.receivers = new HashMap<>();
         this.timer = new Timer(true);
 
-        logger.info("Server started listening at :"+socket.getLocalAddress().toString()+":"+String.valueOf(socket.getLocalPort()));
-        this.localNode.setPort(socket.getLocalPort());
-        this.localNode.setInetAddress((Inet4Address)socket.getLocalAddress());
         /* Start listening for incoming requests in a new thread */
         this.startListener();
+        logger.info("Server started listening at :"+socket.getLocalAddress().toString()+":"+String.valueOf(socket.getLocalPort()));
     }
 
     /**

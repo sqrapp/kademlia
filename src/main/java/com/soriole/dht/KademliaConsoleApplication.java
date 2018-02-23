@@ -66,7 +66,7 @@ public class KademliaConsoleApplication {
         int myport = 0;
         String myName = "Kad-Server";
         int peerPort = 9999;
-        String myAddress=null;
+        InetAddress myAddress=null;
         String peerAddress = null;
         KademliaId serverId=null;
         String kadid = "";
@@ -79,10 +79,8 @@ public class KademliaConsoleApplication {
         kadid = myName + new java.sql.Timestamp(System.currentTimeMillis()).toString();
         kadid = Base64.getEncoder().encodeToString(MessageDigest.getInstance("Sha-256").digest(kadid.getBytes()));
         if (comandline.hasOption("a")){
-            myAddress=comandline.getOptionValue('a');
+            myAddress=InetAddress.getByName(comandline.getOptionValue('a'));
         }
-        else
-            myAddress="127.0.0.1";
 
         if (comandline.hasOption('p')) {
             myport = Integer.valueOf(comandline.getOptionValue('p'));
@@ -98,7 +96,7 @@ public class KademliaConsoleApplication {
             KademliaId id = new KademliaId(new BigInteger(stringId, 16).toByteArray());
         }
 
-        Node me = new Node(kadid.substring(0, 20), InetAddress.getByName(myAddress), myport);
+        Node me = new Node(kadid.substring(0, 20), myAddress, myport);
         node = new JKademliaNode(myName, me);
         // don't do the auto refresh operation at all
         node.stopRefreshOperation();
