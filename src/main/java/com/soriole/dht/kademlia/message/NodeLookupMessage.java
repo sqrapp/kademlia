@@ -40,14 +40,12 @@ public class NodeLookupMessage extends Message
     @Override
     public final void fromStream(DataInputStream in) throws IOException
     {
-        this.sender.setNodeId(new KademliaId(in));
         this.lookupId = new KademliaId(in);
     }
 
     @Override
     public void toStream(DataOutputStream out) throws IOException
     {
-        this.sender.getNodeId().toStream(out);
         this.lookupId.toStream(out);
     }
     public KademliaId getLookupId()

@@ -61,84 +61,55 @@ public class JKademliaNode implements KademliaNode {
      *
      * @param ownerId      The Name of this node used for storage
      * @param localNode    The Local Node for this Kad instance
-     * @param udpPort      The UDP port to use for routing messages
      * @param dht          The DHT for this instance
      * @param config
-     * @param routingTable
      * @throws IOException If an error occurred while reading id or local map
      *                     from disk <i>or</i> a network error occurred while
      *                     attempting to bootstrap to the network
      */
-    public JKademliaNode(String ownerId, Node localNode, int udpPort, KademliaDHT dht, KademliaRoutingTable routingTable, KadConfiguration config) throws IOException {
+
+    public JKademliaNode(String ownerId, Node localNode, KademliaDHT dht, KadConfiguration config) throws IOException {
         this.ownerId = ownerId;
-        this.udpPort = udpPort;
-        this.localNode = localNode;
-        this.publicNode = localNode.copy();
         this.dht = dht;
         this.config = config;
-        this.routingTable = routingTable;
         this.statistician = new Statistician();
         this.messageFactory = new MessageFactory(this, this.dht, this.config);
-        this.server = new KadServer(udpPort, this.messageFactory, this.localNode, this.config, this.statistician);
+        this.server = new KadServer(this.messageFactory, localNode, this.config, this.statistician);
+        this.localNode=server.getLocalNode();
+        this.publicNode = this.localNode.copy();
+        this.udpPort = this.localNode.getPort();
         this.startRefreshOperation(this.config.restoreInterval());
     }
 
-    @Override
-    public final void startRefreshOperation(long interval) {
-        if (this.refreshOperationTimer != null) {
-            stopRefreshOperation();
-        }
-        this.refreshOperationTimer = new Timer(true);
-        refreshOperationTTask = new TimerTask() {
-            @Override
-            public void run() {
-                try {
-                    /* Runs a DHT RefreshOperation  */
-                    JKademliaNode.this.refresh();
-                } catch (IOException e) {
-                    logger.error("KademliaNode: Refresh Operation Failed", e);
-                }
-            }
-        };
-        refreshOperationTimer.schedule(refreshOperationTTask, interval, interval);
-
+    public JKademliaNode(String ownerId, Node localNode,  KademliaDHT dht, KademliaRoutingTable routingTable, KadConfiguration config) throws IOException {
+        this(ownerId,localNode,dht,config);
+        this.routingTable = routingTable;
     }
 
-    @Override
-    public final void stopRefreshOperation() {
-        if (this.refreshOperationTimer != null) {
-            this.refreshOperationTimer.cancel();
-            this.refreshOperationTimer.purge();
-            this.refreshOperationTimer = null;
-        }
-    }
-
-    public JKademliaNode(String ownerId, Node node, int udpPort, KademliaRoutingTable routingTable, KadConfiguration config) throws IOException {
+    public JKademliaNode(String ownerId, Node node, KademliaRoutingTable routingTable, KadConfiguration config) throws IOException {
         this(
                 ownerId,
                 node,
-                udpPort,
                 new DHT(ownerId, config),
                 routingTable,
                 config
         );
     }
 
-    public JKademliaNode(String ownerId, Node node, int udpPort, KadConfiguration config) throws IOException {
+    public JKademliaNode(String ownerId, Node node, KadConfiguration config) throws IOException {
         this(
                 ownerId,
                 node,
-                udpPort,
-                new JKademliaRoutingTable(node, config),
+                new DHT(ownerId, config),
                 config
         );
+        this.routingTable= new JKademliaRoutingTable(this.localNode,config);
     }
 
     public JKademliaNode(String ownerId, KademliaId defaultId, int udpPort) throws IOException {
         this(
                 ownerId,
                 new Node(defaultId, InetAddress.getLocalHost(), udpPort),
-                udpPort,
                 new DefaultConfiguration()
         );
     }
@@ -147,7 +118,6 @@ public class JKademliaNode implements KademliaNode {
         this(
                 ownerId,
                 node,
-                node.getPort(),
                 new DefaultConfiguration()
         );
     }
@@ -201,7 +171,37 @@ public class JKademliaNode implements KademliaNode {
         KademliaDHT idht = new JsonDHTSerializer().read(din);
         idht.setConfiguration(iconfig);
 
-        return new JKademliaNode(ownerId, inode, ikad.getPort(), idht, irtbl, iconfig);
+        return new JKademliaNode(ownerId, inode, idht, irtbl, iconfig);
+    }
+
+    @Override
+    public final void startRefreshOperation(long interval) {
+        if (this.refreshOperationTimer != null) {
+            stopRefreshOperation();
+        }
+        this.refreshOperationTimer = new Timer(true);
+        refreshOperationTTask = new TimerTask() {
+            @Override
+            public void run() {
+                try {
+                    /* Runs a DHT RefreshOperation  */
+                    JKademliaNode.this.refresh();
+                } catch (IOException e) {
+                    logger.error("KademliaNode: Refresh Operation Failed", e);
+                }
+            }
+        };
+        refreshOperationTimer.schedule(refreshOperationTTask, interval, interval);
+
+    }
+
+    @Override
+    public final void stopRefreshOperation() {
+        if (this.refreshOperationTimer != null) {
+            this.refreshOperationTimer.cancel();
+            this.refreshOperationTimer.purge();
+            this.refreshOperationTimer = null;
+        }
     }
 
     @Override

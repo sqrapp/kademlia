@@ -8,7 +8,6 @@ import com.soriole.dht.kademlia.KadConfiguration;
 import com.soriole.dht.kademlia.KadServer;
 import com.soriole.dht.kademlia.KademliaNode;
 import com.soriole.dht.kademlia.KademliaDHT;
-import com.soriole.dht.kademlia.node.Node;
 
 /**
  * Handles creating messages and receivers
@@ -16,7 +15,7 @@ import com.soriole.dht.kademlia.node.Node;
  * @author Joshua Kissoon
  * @since 20140202
  */
-public class MessageFactory implements KademliaMessageFactory
+public class MessageFactory implements JKademliaMessageFactory
 {
 
     private final KademliaNode localNode;
@@ -62,13 +61,16 @@ public class MessageFactory implements KademliaMessageFactory
             case PingMessage.CODE:
                 message = new PingMessage(in);
                 break;
+            case PongMessage.CODE:
+                message= new PongMessage(in);
+                break;
             default:
-                //System.out.println(this.localNode + " - No Message handler found for message. Code: " + code);
+                System.out.println("Unknown message from : " + message.sender.getNodeId());
                 message = new SimpleMessage(in);
         }
-        message.sender.setPort(packet.getPort());
-        message.sender.setInetAddress(packet.getAddress());
-
+        if(message.receiver==null) {
+            message.receiver = localNode.getPublicNode();
+        }
         return message;
     }
 
@@ -86,6 +88,10 @@ public class MessageFactory implements KademliaMessageFactory
                 return new NodeLookupReceiver(server, this.localNode, this.config);
             case StoreContentMessage.CODE:
                 return new StoreContentReceiver(server, this.localNode, this.dht);
+            case PingMessage.CODE:
+                return new PingReceiver(server);
+            case PongMessage.CODE:
+                System.out.println("Pong Message Received from unknown source : Using simple Receiver");
             default:
                 //System.out.println("No receiver found for message. Code: " + code);
                 return new SimpleReceiver();

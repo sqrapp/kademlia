@@ -13,7 +13,7 @@ import com.soriole.dht.kademlia.KadServer;
  * @author Joshua Kissoon
  * @since 20140523
  */
-public interface KademliaMessageFactory
+public interface JKademliaMessageFactory
 {
 
     /**

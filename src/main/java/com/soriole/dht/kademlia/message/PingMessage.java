@@ -9,7 +9,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.Random;
 
-public class PingMessage extends Message implements Receiver{
+public class PingMessage extends Message{
     private static Logger logger=LoggerFactory.getLogger(PingMessage.class);
     KademliaRoutingTable table;
     public static final byte CODE=0x10;
@@ -32,7 +32,7 @@ public class PingMessage extends Message implements Receiver{
     @Override
     public void toStream(DataOutputStream out) throws IOException {
         random=new Random().nextInt();
-        out.write(random);
+        out.writeInt(random);
     }
 
     @Override
@@ -40,18 +40,9 @@ public class PingMessage extends Message implements Receiver{
         random=out.readInt();
     }
 
-    @Override
-    public void receive(Message incoming, int conversationId) throws IOException {
-        if(((PingMessage)incoming).random==random){
-            logger.info("Ping message acknowledged from "+ sender.toDetailString());
-        }
-        else{
-
-        }
+    public PingMessage DefaultInstance(){
+        KademliaRoutingTable table=null;
+        return new PingMessage(table);
     }
 
-    @Override
-    public void timeout(int conversationId) throws IOException {
-        table.setUnresponsiveContact(sender);
-    }
 }

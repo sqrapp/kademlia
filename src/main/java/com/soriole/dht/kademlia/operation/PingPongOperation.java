@@ -16,38 +16,33 @@ import com.soriole.dht.kademlia.KademliaNode;
 import com.soriole.dht.kademlia.exceptions.RoutingException;
 import com.soriole.dht.kademlia.message.Message;
 import com.soriole.dht.kademlia.message.PingMessage;
+import com.soriole.dht.kademlia.message.PongMessage;
 import com.soriole.dht.kademlia.message.Receiver;
 import com.soriole.dht.kademlia.node.Node;
 import com.soriole.dht.kademlia.routing.KademliaRoutingTable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class PingOperation implements Operation {
+public class PingPongOperation implements Operation,Receiver {
     static Logger logger= LoggerFactory.getLogger(Receiver.class);
-    private final KadServer server;
     private final KademliaNode kadNode;
-    private final Node localNode;
     private final Node toPing;
-
-
+    private PingMessage ping;
     /**
-     * @param server The Kademlia server used to send & receive messages
-     * @param local  The local node
      * @param toPing The node to send the ping message to
      */
-    public PingOperation(KadServer server, Node local, Node toPing, KademliaNode app) {
-        this.server = server;
-        this.localNode = local;
+    public PingPongOperation(Node toPing, KademliaNode app) {
         this.toPing = toPing;
         this.kadNode=app;
+
     }
 
 
     @Override
-    public void execute() throws IOException, RoutingException {
+    public void execute() throws IOException {
        try {
-           PingMessage ping = new PingMessage(kadNode.getRoutingTable());
-           server.sendMessage(toPing, ping, ping);
+           ping = new PingMessage(kadNode.getRoutingTable());
+           kadNode.getServer().sendMessage(toPing, ping, this);
        }
        catch (Exception e){
            e.printStackTrace();
@@ -55,5 +50,18 @@ public class PingOperation implements Operation {
 
     }
 
+
+    @Override
+    public void receive(Message incoming, int conversationId) throws IOException {
+        PongMessage pong= (PongMessage) incoming;
+        if(ping.random==pong.random){
+            System.out.println("Peer \""+incoming.sender.getNodeId()+"\" correctly responded our ping message");
+        }
+    }
+
+    @Override
+    public void timeout(int conversationId) throws IOException {
+        System.out.println("Peer didn't care about our Ping Message");
+    }
 }
 

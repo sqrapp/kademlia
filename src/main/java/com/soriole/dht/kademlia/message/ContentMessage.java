@@ -39,16 +39,12 @@ public class ContentMessage extends Message {
 
     @Override
     public void toStream(DataOutputStream out) throws IOException {
-        this.sender.getNodeId().toStream(out);
-
         /* Serialize the KadContent, then send it to the stream */
         new JsonSerializer<JKademliaStorageEntry>().write(content, out);
     }
 
     @Override
     public final void fromStream(DataInputStream in) throws IOException {
-        this.sender.setNodeId( new KademliaId(in));
-
         try {
             this.content = new JsonSerializer<JKademliaStorageEntry>().read(in);
         } catch (ClassNotFoundException e) {

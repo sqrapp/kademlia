@@ -36,9 +36,6 @@ public class NodeReplyMessage extends Message
     @Override
     public final void fromStream(DataInputStream in) throws IOException
     {
-
-        sender.setNodeId(new KademliaId(in));
-
         /* Get the number of incoming nodes */
         int len = in.readInt();
         this.nodes = new ArrayList<>(len);
@@ -53,9 +50,6 @@ public class NodeReplyMessage extends Message
     @Override
     public void toStream(DataOutputStream out) throws IOException
     {
-        // give the sender his/her own node information
-        sender.getNodeId().toStream(out);
-
         /* Add all other nodes to the stream */
         int len = this.nodes.size();
         if (len > 255)

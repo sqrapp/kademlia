@@ -1,9 +1,10 @@
 package com.soriole.dht.kademlia;
 
 import com.soriole.dht.kademlia.exceptions.KadServerDownException;
-import com.soriole.dht.kademlia.message.KademliaMessageFactory;
+import com.soriole.dht.kademlia.message.JKademliaMessageFactory;
 import com.soriole.dht.kademlia.message.Message;
 import com.soriole.dht.kademlia.message.Receiver;
+import com.soriole.dht.kademlia.node.KademliaId;
 import com.soriole.dht.kademlia.node.Node;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import java.io.*;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
+import java.net.Inet4Address;
 import java.net.SocketException;
 import java.util.*;
 
@@ -39,7 +41,7 @@ public class KadServer {
     private final Node localNode;
 
     /* Factories */
-    private final KademliaMessageFactory messageFactory;
+    private final JKademliaMessageFactory messageFactory;
 
     private final KadStatistician statistician;
     public static int messagesSent=0;
@@ -48,17 +50,19 @@ public class KadServer {
     /**
      * Initialize our KadServer
      *
-     * @param udpPort      The port to listen on
      * @param mFactory     Factory used to create messages
      * @param localNode    Local node on which this server runs on
      * @param config
      * @param statistician A statistician to manage the server statistics
      * @throws java.net.SocketException
      */
-    public KadServer(int udpPort, KademliaMessageFactory mFactory, Node localNode, KadConfiguration config, KadStatistician statistician) throws SocketException {
+    public KadServer(JKademliaMessageFactory mFactory, Node localNode, KadConfiguration config, KadStatistician statistician) throws SocketException {
         this.config = config;
-        this.socket = new DatagramSocket(udpPort);
-        this.localNode = localNode;
+        if (localNode.getInetAddress()!=null)
+            this.socket = new DatagramSocket(localNode.getPort(),localNode.getInetAddress());
+        else
+            this.socket=new DatagramSocket(localNode.getPort());
+        this.localNode = localNode.copy();
         this.messageFactory = mFactory;
         this.statistician = statistician;
 
@@ -67,6 +71,9 @@ public class KadServer {
         this.receivers = new HashMap<>();
         this.timer = new Timer(true);
 
+        logger.info("Server started listening at :"+socket.getLocalAddress().toString()+":"+String.valueOf(socket.getLocalPort()));
+        this.localNode.setPort(socket.getLocalPort());
+        this.localNode.setInetAddress((Inet4Address)socket.getLocalAddress());
         /* Start listening for incoming requests in a new thread */
         this.startListener();
     }
@@ -107,8 +114,9 @@ public class KadServer {
                 /* Setup the receiver to handle message response */
                 receivers.put(comm, recv);
                 TimerTask task = new TimeoutTask(comm, recv);
-                timer.schedule(task, 20000);
                 tasks.put(comm, task);
+                timer.schedule(task, 10000);
+
             } catch (IllegalStateException ex) {
                 /* The timer is already cancelled so we cannot do anything here really */
             }
@@ -146,6 +154,7 @@ public class KadServer {
             KadServer.messagesSent+=1;
             dout.writeInt(comm);
             dout.writeByte(msg.code());
+            localNode.getNodeId().toStream(dout);
             msg.toStream(dout);
 
             byte[] data = bout.toByteArray();
@@ -157,7 +166,7 @@ public class KadServer {
             /* Everything is good, now create the packet and send it */
             DatagramPacket pkt = new DatagramPacket(data, 0, data.length);
             pkt.setSocketAddress(to.getSocketAddress());
-            logger.debug( "Message Send     : "+String.valueOf(msg.code())+" --> "+pkt.getAddress().toString()+":"+String.valueOf(pkt.getPort()));
+            //logger.debug( "Message Send     : "+String.valueOf(msg.code())+" --> "+pkt.getAddress().toString()+":"+String.valueOf(pkt.getPort()));
             socket.send(pkt);
             /* Lets inform the statistician that we've sent some data */
             this.statistician.sentData(data.length);
@@ -200,8 +209,12 @@ public class KadServer {
                         int comm = din.readInt();
                         byte messCode = din.readByte();
 
+                        KademliaId id= new KademliaId(din);
                         Message msg = messageFactory.createMessage(messCode, din,packet);
-                        logger.debug("Message Received : "+msg.code()+" --> "+packet.getAddress()+":"+String.valueOf(packet.getPort()));
+                        msg.sender=new Node(id,packet.getAddress(),packet.getPort());
+
+
+                        //logger.debug("Message Received : "+msg.code()+" --> "+packet.getAddress()+":"+String.valueOf(packet.getPort()));
 
                         /* Get a receiver for this message */
                         Receiver receiver;
@@ -221,14 +234,17 @@ public class KadServer {
 
                         /* Invoke the receiver */
                         if (receiver != null) {
-                            receiver.receive(msg, comm);
+                                receiver.receive(msg, comm);
+
                         }
                     }
-                } catch (IOException e) {
-                    logger.error("Server ran into a problem in listener method.", e.getMessage());
+                } catch (Exception e) {
+                    logger.error("Unintended Error : Ignoring it");
+                    e.printStackTrace();
                 }
             }
         } finally {
+            logger.warn("The server has been sutdown. This might be unintended");
             if (!socket.isClosed()) {
                 socket.close();
             }
@@ -296,6 +312,9 @@ public class KadServer {
 
     public boolean isRunning() {
         return this.isRunning;
+    }
+    public Node getLocalNode(){
+        return this.localNode;
     }
 
 }

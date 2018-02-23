@@ -46,7 +46,6 @@ public class ContentLookupMessage extends Message {
 
     @Override
     public void toStream(DataOutputStream out) throws IOException {
-        this.sender.getNodeId().toStream(out);
 
         /* Write the params to the stream */
         new JsonSerializer<GetParameter>().write(this.params, out);
@@ -54,7 +53,6 @@ public class ContentLookupMessage extends Message {
 
     @Override
     public final void fromStream(DataInputStream in) throws IOException {
-        this.sender.setNodeId( new KademliaId(in));
 
         /* Read the params from the stream */
         try {

@@ -4,8 +4,7 @@ import com.soriole.dht.kademlia.JKademliaNode;
 import com.soriole.dht.kademlia.KadServer;
 import com.soriole.dht.kademlia.node.KademliaId;
 import com.soriole.dht.kademlia.node.Node;
-import com.soriole.dht.kademlia.operation.PingOperation;
-import lombok.extern.log4j.Log4j;
+import com.soriole.dht.kademlia.operation.PingPongOperation;
 import org.apache.commons.cli.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,7 +43,8 @@ public class KademliaConsoleApplication {
         options = new Options();
         options.addOption("spring",false,"If specified the kademlia Application will run in spring boot mode");
         options.addOption("b", "bootstrap", false, "If specified, it means that it's a bootstrap node");
-        options.addOption("p", "port", true, "Port for local node. 99999 by default");
+        options.addOption("a","address",true,"The address to which the local node will be bound to");
+        options.addOption("p", "port", true, "Port for local node, choosed dynamically if not specified");
         options.addOption("n", "name", true, "Publicly displayed name of server. Kad-Server by default");
         options.addOption("bp", true, "Bootstrap server's port: 99999 by default");
         options.addOption("ba", true, "Address of bootstrap server");
@@ -62,12 +62,13 @@ public class KademliaConsoleApplication {
 
     public void interpretArgs() throws NoSuchAlgorithmException, IOException {
 
-        // these default values will be overidden if they are supplied through argument
-        int myport = 9999;
+        // default myport to 0 will result in choosing a random unbound port in the machine.
+        int myport = 0;
         String myName = "Kad-Server";
         int peerPort = 9999;
+        String myAddress=null;
         String peerAddress = null;
-        String serverId = "01234567890123456789";
+        KademliaId serverId=null;
         String kadid = "";
 
 
@@ -77,6 +78,11 @@ public class KademliaConsoleApplication {
         }
         kadid = myName + new java.sql.Timestamp(System.currentTimeMillis()).toString();
         kadid = Base64.getEncoder().encodeToString(MessageDigest.getInstance("Sha-256").digest(kadid.getBytes()));
+        if (comandline.hasOption("a")){
+            myAddress=comandline.getOptionValue('a');
+        }
+        else
+            myAddress="127.0.0.1";
 
         if (comandline.hasOption('p')) {
             myport = Integer.valueOf(comandline.getOptionValue('p'));
@@ -88,20 +94,22 @@ public class KademliaConsoleApplication {
             peerAddress = comandline.getOptionValue("ba");
         }
         if (comandline.hasOption("bid")) {
-            serverId = comandline.getOptionValue("bid");
+            String stringId = comandline.getOptionValue("bid");
+            KademliaId id = new KademliaId(new BigInteger(stringId, 16).toByteArray());
         }
 
-        Node me = new Node(kadid.substring(0, 20), InetAddress.getByName("127.0.0.1"), myport);
+        Node me = new Node(kadid.substring(0, 20), InetAddress.getByName(myAddress), myport);
         node = new JKademliaNode(myName, me);
-        logger.info("Server info :" + node.getRoutingTable().getAllNodes().toString());
+        // don't do the auto refresh operation at all
+        node.stopRefreshOperation();
+        logger.info("Server info :" + node.getLocalNode().toDetailString());
 
         if (!comandline.hasOption('b')) {
             if (peerAddress == null) {
                 logger.error("ba arguments is compulsary if this node is not a bootstrap node\n\n");
                 printHelp();
             } else {
-                KademliaId id = new KademliaId(new BigInteger(serverId, 16).toByteArray());
-                node.bootstrap(new Node(id, InetAddress.getByName(peerAddress), peerPort));
+                node.bootstrap(new Node(serverId, InetAddress.getByName(peerAddress), peerPort));
             }
         }
     }
@@ -155,7 +163,7 @@ public class KademliaConsoleApplication {
                 try {
                     int val = Integer.valueOf(list[1]);
                     Node n = (Node) node.getRoutingTable().getAllNodes().get(val);
-                    new PingOperation(this.node.getServer(), this.node.getPublicNode(), n, this.node).execute();
+                    new PingPongOperation( n, this.node).execute();
                 } catch (Exception e) {
                     System.out.println(e.getClass().getName()+" : "+e.getMessage());
                 }

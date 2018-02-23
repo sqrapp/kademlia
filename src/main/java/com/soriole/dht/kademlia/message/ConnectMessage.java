@@ -26,12 +26,10 @@ public class ConnectMessage extends Message {
 
     @Override
     public final void fromStream(DataInputStream in) throws IOException {
-        this.sender.setNodeId(new KademliaId(in));
     }
 
     @Override
     public void toStream(DataOutputStream out) throws IOException {
-        sender.getNodeId().toStream(out);
     }
 
     @Override

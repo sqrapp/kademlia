@@ -19,4 +19,5 @@ public abstract class Message implements Streamable
         return this.sender;
     }
     public final Node getReceiver(){return this.receiver;}
+
 }

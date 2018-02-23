@@ -142,6 +142,6 @@ public class Node implements Streamable, Serializable {
         return this.getNodeId().toString();
     }
     public String toDetailString(){
-        return "<"+this.getNodeId()+", "+this.getSocketAddress()+">";
+        return this.getNodeId()+" || "+this.getSocketAddress();
     }
 }

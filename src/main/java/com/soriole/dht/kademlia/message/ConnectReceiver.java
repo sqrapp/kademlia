@@ -6,7 +6,7 @@ import com.soriole.dht.kademlia.KademliaNode;
 import java.io.IOException;
 
 /**
- * Receives a ConnectMessage and sends an AcknowledgeMessage as reply.
+ * Receives a ConnectMessage and sends an AcknowledgeMessage as random.
  *
  * @author Joshua Kissoon
  * @created 20140219
@@ -36,7 +36,7 @@ public class ConnectReceiver implements Receiver {
 
         /* Respond to the connect request */
         AcknowledgeMessage msg = new AcknowledgeMessage(mess.getSender());
-
+        msg.sender=mess.receiver;
         /* Reply to the connect message with an Acknowledgement */
         this.server.reply(mess.getSender(), msg, comm);
     }

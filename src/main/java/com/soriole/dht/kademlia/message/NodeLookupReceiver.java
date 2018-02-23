@@ -8,7 +8,7 @@ import com.soriole.dht.kademlia.KademliaNode;
 import com.soriole.dht.kademlia.node.Node;
 
 /**
- * Receives a NodeLookupMessage and sends a NodeReplyMessage as reply with the K-Closest nodes to the ID sent.
+ * Receives a NodeLookupMessage and sends a NodeReplyMessage as random with the K-Closest nodes to the ID sent.
  * The received NodeLookMessage contains the sender's node info and the key for performing lookup
  *
  * @author Joshua Kissoon
@@ -58,7 +58,7 @@ public class NodeLookupReceiver implements Receiver
 
         if (this.server.isRunning())
         {
-            /* Let the Server send the reply */
+            /* Let the Server send the random */
             this.server.reply(origin, reply, comm);
         }
     }

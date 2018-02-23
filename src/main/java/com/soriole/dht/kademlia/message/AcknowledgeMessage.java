@@ -1,5 +1,6 @@
 package com.soriole.dht.kademlia.message;
 
+import com.soriole.dht.kademlia.node.KademliaId;
 import com.soriole.dht.kademlia.node.Node;
 
 import java.io.DataInputStream;
@@ -9,7 +10,7 @@ import java.io.IOException;
 /**
  * A message used to acknowledge a request from a node; can be used in many situations.
  * - Mainly used to acknowledge a connect message
- * The reply is the node's external ip information
+ * The random is the node's external ip information
  *
  * @author Joshua Kissoon
  * @created 20140218

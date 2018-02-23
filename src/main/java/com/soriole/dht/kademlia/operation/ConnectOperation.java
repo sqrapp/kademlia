@@ -67,7 +67,19 @@ public class ConnectOperation implements Operation, Receiver {
         AcknowledgeMessage msg = (AcknowledgeMessage) incoming;
 
         /* The bootstrap node has responded, insert it into our space */
-        this.localNode.getRoutingTable().insert(this.bootstrapNode);
+        if(bootstrapNode.getNodeId()!=null){
+            if(bootstrapNode.getNodeId().toString().equals(msg.sender.getNodeId().toString())){
+                logger.info("Bootstrap Node's public key verification made");
+            }
+            else{
+                logger.error("Bootstrap Node couldn't verify it's identity");
+                throw new RuntimeException("Fake Bootstrap node : Connection is not safe");
+            }
+        }
+        else{
+            logger.warn("Bootstrap node is not verified. Certain attacks are possible");
+        }
+        this.localNode.getRoutingTable().insert(msg.sender);
 
         // now we have the public ip and port info. thus update it.
         Node me = this.localNode.getPublicNode();
@@ -79,7 +91,12 @@ public class ConnectOperation implements Operation, Receiver {
         mynode.setPort(me.getPort());
 
         logger.info("Hurrey!! Bootstrap Node has acknowledged us");
-        refresh();
+
+        try {
+            localNode.refresh();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         /* We got a response, so the error is false */
         error = false;
         /* Wake up any waiting thread */
@@ -101,17 +118,6 @@ public class ConnectOperation implements Operation, Receiver {
         } else {
             /* We just exit, so notify all other threads that are possibly waiting */
             notify();
-        }
-    }
-
-    private void refresh() {
-        try {
-            Operation lookup = new NodeLookupOperation(this.server, this.localNode, this.localNode.getPublicNode().getNodeId(), this.config);
-            lookup.execute();
-            new BucketRefreshOperation(this.server, this.localNode, this.config).execute();
-        } catch (IOException e) {
-            logger.warn("Bootstrap Node acknowledged us, but Routing table couldn't be refreshed");
-            e.printStackTrace();
         }
     }
 }
