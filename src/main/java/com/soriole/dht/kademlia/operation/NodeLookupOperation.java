@@ -18,6 +18,8 @@ import com.soriole.dht.kademlia.message.NodeReplyMessage;
 import com.soriole.dht.kademlia.node.KeyComparator;
 import com.soriole.dht.kademlia.node.Node;
 import com.soriole.dht.kademlia.node.KademliaId;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Finds the K closest nodes to a specified identifier
@@ -30,6 +32,7 @@ import com.soriole.dht.kademlia.node.KademliaId;
 public class NodeLookupOperation implements Operation, Receiver
 {
 
+    private static Logger logger= LoggerFactory.getLogger(NodeLookupOperation.class);
     /* Constants */
     private static final String UNASKED = "UnAsked";
     private static final String AWAITING = "Awaiting";
@@ -66,7 +69,7 @@ public class NodeLookupOperation implements Operation, Receiver
         this.localNode = localNode;
         this.config = config;
 
-        this.lookupMessage = new NodeLookupMessage(localNode.getNode(), lookupId);
+        this.lookupMessage = new NodeLookupMessage(localNode.getPublicNode(), lookupId);
 
         /**
          * We initialize a TreeMap to store nodes.
@@ -86,7 +89,7 @@ public class NodeLookupOperation implements Operation, Receiver
         try
         {
             /* Set the local node as already asked */
-            nodes.put(this.localNode.getNode(), ASKED);
+            nodes.put(this.localNode.getPublicNode(), ASKED);
 
             /**
              * We add all nodes here instead of the K-Closest because there may be the case that the K-Closest are offline
@@ -259,17 +262,18 @@ public class NodeLookupOperation implements Operation, Receiver
     {
         if (!(incoming instanceof NodeReplyMessage))
         {
+            logger.warn("We dropped processing message : nodeReplyMessage expected got "+incoming.getClass().getName());
             /* Not sure why we get a message of a different type here... @todo Figure it out. */
             return;
         }
         /* We receive a NodeReplyMessage with a set of nodes, read this message */
         NodeReplyMessage msg = (NodeReplyMessage) incoming;
 
-        /* Add the origin node to our routing table */
-        Node origin = msg.getOrigin();
+        /* Add the sender node to our routing table */
+        Node origin = msg.getSender();
         this.localNode.getRoutingTable().insert(origin);
 
-        /* Set that we've completed ASKing the origin node */
+        /* Set that we've completed ASKing the sender node */
         this.nodes.put(origin, ASKED);
 
         /* Remove this msg from messagesTransiting since it's completed now */

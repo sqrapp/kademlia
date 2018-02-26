@@ -22,7 +22,7 @@ public interface Receiver
     public void receive(Message incoming, int conversationId) throws IOException;
 
     /**
-     * If no reply is received in <code>MessageServer.TIMEOUT</code> seconds for the
+     * If no random is received in <code>MessageServer.TIMEOUT</code> seconds for the
      * message with communication id <code>comm</code>, the MessageServer calls this method
      *
      * @param conversationId The conversation ID of this communication

@@ -14,7 +14,7 @@ import com.soriole.dht.kademlia.node.KademliaId;
  * @author Joshua Kissoon
  * @since 20140224
  */
-public class ContentSendingTest
+public class ContentPutTest
 {
 
     public static void main(String[] args)
@@ -23,10 +23,10 @@ public class ContentSendingTest
         {
             /* Setting up 2 Kad networks */
             JKademliaNode kad1 = new JKademliaNode("JoshuaK", new KademliaId("ASF45678947584567467"), 7574);
-            System.out.println("Created Node Kad 1: " + kad1.getNode().getNodeId());
+            System.out.println("Created Node Kad 1: " + kad1.getLocalNode().getNodeId());
             JKademliaNode kad2 = new JKademliaNode("Crystal", new KademliaId("ASERTKJDHGVHERJHGFLK"), 7572);
-            System.out.println("Created Node Kad 2: " + kad2.getNode().getNodeId());
-            kad2.bootstrap(kad1.getNode());
+            System.out.println("Created Node Kad 2: " + kad2.getLocalNode().getNodeId());
+            kad2.bootstrap(kad1.getLocalNode());
 
             /**
              * Lets create the content and share it

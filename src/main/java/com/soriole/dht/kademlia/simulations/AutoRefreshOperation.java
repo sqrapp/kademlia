@@ -30,20 +30,20 @@ public class AutoRefreshOperation implements Simulation
 
             /* Connecting nodes */
             System.out.println("Connecting Nodes");
-            kad2.bootstrap(kad1.getNode());
-            kad3.bootstrap(kad2.getNode());
-            kad4.bootstrap(kad2.getNode());
-            kad5.bootstrap(kad4.getNode());
+            kad2.bootstrap(kad1.getLocalNode());
+            kad3.bootstrap(kad2.getLocalNode());
+            kad4.bootstrap(kad2.getLocalNode());
+            kad5.bootstrap(kad4.getLocalNode());
 
             DHTContentImpl c = new DHTContentImpl(new KademliaId("AS84k678947584567465"), kad1.getOwnerId());
             c.setData("Setting the data");
 
             System.out.println("\n Content ID: " + c.getKey());
-            System.out.println(kad1.getNode() + " Distance from content: " + kad1.getNode().getNodeId().getDistance(c.getKey()));
-            System.out.println(kad2.getNode() + " Distance from content: " + kad2.getNode().getNodeId().getDistance(c.getKey()));
-            System.out.println(kad3.getNode() + " Distance from content: " + kad3.getNode().getNodeId().getDistance(c.getKey()));
-            System.out.println(kad4.getNode() + " Distance from content: " + kad4.getNode().getNodeId().getDistance(c.getKey()));
-            System.out.println(kad5.getNode() + " Distance from content: " + kad5.getNode().getNodeId().getDistance(c.getKey()));
+            System.out.println(kad1.getLocalNode() + " Distance from content: " + kad1.getLocalNode().getNodeId().getDistance(c.getKey()));
+            System.out.println(kad2.getLocalNode() + " Distance from content: " + kad2.getLocalNode().getNodeId().getDistance(c.getKey()));
+            System.out.println(kad3.getLocalNode() + " Distance from content: " + kad3.getLocalNode().getNodeId().getDistance(c.getKey()));
+            System.out.println(kad4.getLocalNode() + " Distance from content: " + kad4.getLocalNode().getNodeId().getDistance(c.getKey()));
+            System.out.println(kad5.getLocalNode() + " Distance from content: " + kad5.getLocalNode().getNodeId().getDistance(c.getKey()));
             System.out.println("\nSTORING CONTENT 1 locally on " + kad1.getOwnerId() + "\n\n\n\n");
 
             kad1.putLocally(c);

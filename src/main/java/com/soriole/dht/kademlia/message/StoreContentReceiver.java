@@ -32,7 +32,7 @@ public class StoreContentReceiver implements Receiver
         StoreContentMessage msg = (StoreContentMessage) incoming;
 
         /* Insert the message sender into this node's routing table */
-        this.localNode.getRoutingTable().insert(msg.getOrigin());
+        this.localNode.getRoutingTable().insert(msg.getSender());
 
         try
         {

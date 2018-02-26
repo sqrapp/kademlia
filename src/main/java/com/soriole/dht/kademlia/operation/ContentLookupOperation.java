@@ -15,7 +15,6 @@ import com.soriole.dht.kademlia.GetParameter;
 import com.soriole.dht.kademlia.KadConfiguration;
 import com.soriole.dht.kademlia.KadServer;
 import com.soriole.dht.kademlia.JKademliaStorageEntry;
-import com.soriole.dht.kademlia.KademliaStorageEntry;
 import com.soriole.dht.kademlia.exceptions.ContentNotFoundException;
 import com.soriole.dht.kademlia.exceptions.RoutingException;
 import com.soriole.dht.kademlia.exceptions.UnknownMessageException;
@@ -77,7 +76,7 @@ public class ContentLookupOperation implements Operation, Receiver
     public ContentLookupOperation(KadServer server, JKademliaNode localNode, GetParameter params, KadConfiguration config)
     {
         /* Construct our lookup message */
-        this.lookupMessage = new ContentLookupMessage(localNode.getNode(), params);
+        this.lookupMessage = new ContentLookupMessage(localNode.getLocalNode(), params);
 
         this.server = server;
         this.localNode = localNode;
@@ -101,7 +100,7 @@ public class ContentLookupOperation implements Operation, Receiver
         try
         {
             /* Set the local node as already asked */
-            nodes.put(this.localNode.getNode(), ASKED);
+            nodes.put(this.localNode.getLocalNode(), ASKED);
 
             /**
              * We add all nodes here instead of the K-Closest because there may be the case that the K-Closest are offline
@@ -250,8 +249,8 @@ public class ContentLookupOperation implements Operation, Receiver
             /* The reply received is a content message with the required content, take it in */
             ContentMessage msg = (ContentMessage) incoming;
 
-            /* Add the origin node to our routing table */
-            this.localNode.getRoutingTable().insert(msg.getOrigin());
+            /* Add the sender node to our routing table */
+            this.localNode.getRoutingTable().insert(msg.getSender());
 
             /* Get the Content and check if it satisfies the required parameters */
             JKademliaStorageEntry content = msg.getContent();
@@ -263,11 +262,11 @@ public class ContentLookupOperation implements Operation, Receiver
             /* The reply received is a NodeReplyMessage with nodes closest to the content needed */
             NodeReplyMessage msg = (NodeReplyMessage) incoming;
 
-            /* Add the origin node to our routing table */
-            Node origin = msg.getOrigin();
+            /* Add the sender node to our routing table */
+            Node origin = msg.getSender();
             this.localNode.getRoutingTable().insert(origin);
 
-            /* Set that we've completed ASKing the origin node */
+            /* Set that we've completed ASKing the sender node */
             this.nodes.put(origin, ASKED);
 
             /* Remove this msg from messagesTransiting since it's completed now */

@@ -8,14 +8,14 @@ import com.soriole.dht.kademlia.node.KademliaId;
 
 /**
  * A message sent to other nodes requesting the K-Closest nodes to a key sent in this message.
+ * When you send Node LookupMessage you send your own node info first then other data.
  *
  * @author Joshua Kissoon
  * @created 20140218
  */
-public class NodeLookupMessage implements Message
+public class NodeLookupMessage extends Message
 {
 
-    private Node origin;
     private KademliaId lookupId;
 
     public static final byte CODE = 0x05;
@@ -23,12 +23,12 @@ public class NodeLookupMessage implements Message
     /**
      * A new NodeLookupMessage to find nodes
      *
-     * @param origin The Node from which the message is coming from
+     * @param sender The Node from which the message is coming from
      * @param lookup The key for which to lookup nodes for
      */
-    public NodeLookupMessage(Node origin, KademliaId lookup)
+    public NodeLookupMessage(Node sender, KademliaId lookup)
     {
-        this.origin = origin;
+        this.sender = sender;
         this.lookupId = lookup;
     }
 
@@ -40,22 +40,14 @@ public class NodeLookupMessage implements Message
     @Override
     public final void fromStream(DataInputStream in) throws IOException
     {
-        this.origin = new Node(in);
         this.lookupId = new KademliaId(in);
     }
 
     @Override
     public void toStream(DataOutputStream out) throws IOException
     {
-        this.origin.toStream(out);
         this.lookupId.toStream(out);
     }
-
-    public Node getOrigin()
-    {
-        return this.origin;
-    }
-
     public KademliaId getLookupId()
     {
         return this.lookupId;
@@ -70,6 +62,6 @@ public class NodeLookupMessage implements Message
     @Override
     public String toString()
     {
-        return "NodeLookupMessage[origin=" + origin + ",lookup=" + lookupId + "]";
+        return "NodeLookupMessage[sender=" + sender + ",lookup=" + lookupId + "]";
     }
 }

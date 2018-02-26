@@ -26,15 +26,15 @@ public class RoutingTableSimulation
 
             KademliaRoutingTable rt = kad1.getRoutingTable();
             
-            rt.insert(kad2.getNode());
-            rt.insert(kad3.getNode());
-            rt.insert(kad4.getNode());
+            rt.insert(kad2.getLocalNode());
+            rt.insert(kad3.getLocalNode());
+            rt.insert(kad4.getLocalNode());
             System.out.println(rt);
             
-            rt.insert(kad5.getNode());            
+            rt.insert(kad5.getLocalNode());
             System.out.println(rt);
             
-            rt.insert(kad3.getNode());            
+            rt.insert(kad3.getLocalNode());
             System.out.println(rt);
             
             

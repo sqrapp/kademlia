@@ -30,7 +30,7 @@ public class JKademliaRoutingTable implements KademliaRoutingTable {
         this.initialize();
 
         /* Insert the local node */
-        this.insert(localNode);
+        this.insert(localNode.copy());
     }
 
     /**

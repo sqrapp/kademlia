@@ -4,7 +4,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import com.soriole.dht.kademlia.JKademliaStorageEntry;
-import com.soriole.dht.kademlia.KademliaStorageEntry;
+import com.soriole.dht.kademlia.node.KademliaId;
 import com.soriole.dht.kademlia.node.Node;
 import com.soriole.dht.kademlia.util.serializer.JsonSerializer;
 
@@ -14,13 +14,12 @@ import com.soriole.dht.kademlia.util.serializer.JsonSerializer;
  * @author Joshua Kissoon
  * @since 20140225
  */
-public class StoreContentMessage implements Message
+public class StoreContentMessage extends Message
 {
 
     public static final byte CODE = 0x08;
 
     private JKademliaStorageEntry content;
-    private Node origin;
 
     /**
      * @param origin  Where the message came from
@@ -30,7 +29,7 @@ public class StoreContentMessage implements Message
     public StoreContentMessage(Node origin, JKademliaStorageEntry content)
     {
         this.content = content;
-        this.origin = origin;
+        this.sender = origin;
     }
 
     public StoreContentMessage(DataInputStream in) throws IOException
@@ -41,8 +40,6 @@ public class StoreContentMessage implements Message
     @Override
     public void toStream(DataOutputStream out) throws IOException
     {
-        this.origin.toStream(out);
-
         /* Serialize the KadContent, then send it to the stream */
         new JsonSerializer<JKademliaStorageEntry>().write(content, out);
     }
@@ -50,7 +47,6 @@ public class StoreContentMessage implements Message
     @Override
     public final void fromStream(DataInputStream in) throws IOException
     {
-        this.origin = new Node(in);
         try
         {
             this.content = new JsonSerializer<JKademliaStorageEntry>().read(in);
@@ -59,11 +55,6 @@ public class StoreContentMessage implements Message
         {
             e.printStackTrace();
         }
-    }
-
-    public Node getOrigin()
-    {
-        return this.origin;
     }
 
     public JKademliaStorageEntry getContent()
@@ -80,6 +71,6 @@ public class StoreContentMessage implements Message
     @Override
     public String toString()
     {
-        return "StoreContentMessage[origin=" + origin + ",content=" + content + "]";
+        return "StoreContentMessage[sender=" + sender + ",content=" + content + "]";
     }
 }

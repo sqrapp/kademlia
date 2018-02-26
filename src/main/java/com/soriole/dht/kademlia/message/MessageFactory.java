@@ -2,6 +2,8 @@ package com.soriole.dht.kademlia.message;
 
 import java.io.DataInputStream;
 import java.io.IOException;
+import java.net.DatagramPacket;
+
 import com.soriole.dht.kademlia.KadConfiguration;
 import com.soriole.dht.kademlia.KadServer;
 import com.soriole.dht.kademlia.KademliaNode;
@@ -13,7 +15,7 @@ import com.soriole.dht.kademlia.KademliaDHT;
  * @author Joshua Kissoon
  * @since 20140202
  */
-public class MessageFactory implements KademliaMessageFactory
+public class MessageFactory implements JKademliaMessageFactory
 {
 
     private final KademliaNode localNode;
@@ -28,32 +30,50 @@ public class MessageFactory implements KademliaMessageFactory
     }
 
     @Override
-    public Message createMessage(byte code, DataInputStream in) throws IOException
-    {
-        switch (code)
-        {
+    public Message createMessage(byte code, DataInputStream in,DatagramPacket packet) throws IOException {
+        Message message = null;
+        switch (code) {
             case AcknowledgeMessage.MSG_CODE:
-                return new AcknowledgeMessage(in);
+                message = new AcknowledgeMessage(in);
+                break;
             case ConnectMessage.MSG_CODE:
-                return new ConnectMessage(in);
+                message = new ConnectMessage(in);
+                break;
             case ContentMessage.MSG_CODE:
-                return new ContentMessage(in);
+                message = new ContentMessage(in);
+                break;
             case ContentLookupMessage.MSG_CODE:
-                return new ContentLookupMessage(in);
+                message = new ContentLookupMessage(in);
+                break;
             case NodeLookupMessage.CODE:
-                return new NodeLookupMessage(in);
+                message = new NodeLookupMessage(in);
+                break;
             case NodeReplyMessage.CODE:
-                return new NodeReplyMessage(in);
+                message = new NodeReplyMessage(in);
+                break;
             case SimpleMessage.CODE:
-                return new SimpleMessage(in);
+                message = new SimpleMessage(in);
+                break;
             case StoreContentMessage.CODE:
-                return new StoreContentMessage(in);
-            default:
-                //System.out.println(this.localNode + " - No Message handler found for message. Code: " + code);
-                return new SimpleMessage(in);
+                message = new StoreContentMessage(in);
+                break;
 
+            case PingMessage.CODE:
+                message = new PingMessage(in);
+                break;
+            case PongMessage.CODE:
+                message= new PongMessage(in);
+                break;
+            default:
+                System.out.println("Unknown message from : " + message.sender.getNodeId());
+                message = new SimpleMessage(in);
         }
+        if(message.receiver==null) {
+            message.receiver = localNode.getPublicNode();
+        }
+        return message;
     }
+
 
     @Override
     public Receiver createReceiver(byte code, KadServer server)
@@ -68,6 +88,10 @@ public class MessageFactory implements KademliaMessageFactory
                 return new NodeLookupReceiver(server, this.localNode, this.config);
             case StoreContentMessage.CODE:
                 return new StoreContentReceiver(server, this.localNode, this.dht);
+            case PingMessage.CODE:
+                return new PingReceiver(server);
+            case PongMessage.CODE:
+                System.out.println("Pong Message Received from unknown source : Using simple Receiver");
             default:
                 //System.out.println("No receiver found for message. Code: " + code);
                 return new SimpleReceiver();

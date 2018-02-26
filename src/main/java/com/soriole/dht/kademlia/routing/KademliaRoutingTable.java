@@ -60,7 +60,7 @@ public interface KademliaRoutingTable {
     /**
      * @return List A List of all Nodes in this RoutingTable
      */
-    public List getAllNodes();
+    public List<Node> getAllNodes();
 
     /**
      * @return List A List of all Nodes in this RoutingTable

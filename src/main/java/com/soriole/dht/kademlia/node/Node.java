@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.net.UnknownHostException;
 
 /**
  * A Node in the Kademlia network - Contains basic node network information.
@@ -21,24 +22,42 @@ public class Node implements Streamable, Serializable {
     private KademliaId nodeId;
     private InetAddress inetAddress;
     private int port;
-    private final String strRep;
+
+    public Node() {
+    }
+
+    public Node copy() {
+
+        Node n = new Node();
+        n.nodeId = new KademliaId(nodeId.getBytes());
+        n.inetAddress = this.inetAddress;
+        n.port = port;
+        return n;
+
+    }
 
     public Node(KademliaId nid, InetAddress ip, int port) {
         this.nodeId = nid;
         this.inetAddress = ip;
         this.port = port;
-        this.strRep = this.nodeId.toString();
     }
 
     public Node(String kadId, InetAddress ip, int port) {
         this.nodeId = new KademliaId(kadId);
         this.inetAddress = ip;
         this.port = port;
-        this.strRep = this.nodeId.toString();
     }
 
     public int getPort() {
         return this.port;
+    }
+
+    public void setPort(int port) {
+        this.port = port;
+    }
+
+    public void setNodeId(KademliaId id) {
+        this.nodeId = id;
     }
 
     /**
@@ -49,7 +68,6 @@ public class Node implements Streamable, Serializable {
      */
     public Node(DataInputStream in) throws IOException {
         this.fromStream(in);
-        this.strRep = this.nodeId.toString();
     }
 
     /**
@@ -75,6 +93,10 @@ public class Node implements Streamable, Serializable {
      */
     public InetSocketAddress getSocketAddress() {
         return new InetSocketAddress(this.inetAddress, this.port);
+    }
+
+    public InetAddress getInetAddress() {
+        return inetAddress;
     }
 
     @Override
@@ -127,5 +149,9 @@ public class Node implements Streamable, Serializable {
     @Override
     public String toString() {
         return this.getNodeId().toString();
+    }
+
+    public String toDetailString() {
+        return this.getNodeId() + " || " + this.getSocketAddress();
     }
 }

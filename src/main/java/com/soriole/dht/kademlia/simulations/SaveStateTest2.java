@@ -25,7 +25,7 @@ public class SaveStateTest2
 
             /* Connecting 2 to 1 */
             System.out.println("Connecting Nodes 1 & 2");
-            kad2.bootstrap(kad1.getNode());
+            kad2.bootstrap(kad1.getLocalNode());
             System.out.println(kad1);
             System.out.println(kad2);
 
@@ -47,7 +47,7 @@ public class SaveStateTest2
 
             System.out.println("\n\n\nReloading Kad instance from file");
             kad1 = JKademliaNode.loadFromFile("JoshuaK");
-            kad1.bootstrap(kad2.getNode());
+            kad1.bootstrap(kad2.getLocalNode());
             System.out.println(kad2);
 
             /* Trying to get a content stored on the restored node */

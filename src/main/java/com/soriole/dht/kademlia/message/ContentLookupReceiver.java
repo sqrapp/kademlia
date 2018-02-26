@@ -18,13 +18,13 @@ public class ContentLookupReceiver implements Receiver {
     private static final Logger logger = LoggerFactory.getLogger(ContentLookupReceiver.class);
 
     private final KadServer server;
-    private final KademliaNode localNode;
+    private final KademliaNode localKadNode;
     private final KademliaDHT dht;
     private final KadConfiguration config;
 
-    public ContentLookupReceiver(KadServer server, KademliaNode localNode, KademliaDHT dht, KadConfiguration config) {
+    public ContentLookupReceiver(KadServer server, KademliaNode localKadNode, KademliaDHT dht, KadConfiguration config) {
         this.server = server;
-        this.localNode = localNode;
+        this.localKadNode = localKadNode;
         this.dht = dht;
         this.config = config;
     }
@@ -32,14 +32,14 @@ public class ContentLookupReceiver implements Receiver {
     @Override
     public void receive(Message incoming, int comm) throws IOException {
         ContentLookupMessage msg = (ContentLookupMessage) incoming;
-        this.localNode.getRoutingTable().insert(msg.getOrigin());
+        this.localKadNode.getRoutingTable().insert(msg.getSender());
 
         /* Check if we can have this data */
         if (this.dht.contains(msg.getParameters())) {
             try {
                 /* Return a ContentMessage with the required data */
-                ContentMessage cMsg = new ContentMessage(localNode.getNode(), this.dht.get(msg.getParameters()));
-                server.reply(msg.getOrigin(), cMsg, comm);
+                ContentMessage cMsg = new ContentMessage(localKadNode.getPublicNode(), this.dht.get(msg.getParameters()));
+                server.reply(msg.getSender(), cMsg, comm);
             } catch (NoSuchElementException ex) {
                 /* @todo Not sure why this exception is thrown here, checkup the system when tests are writtem*/
                 logger.error("Element not found", ex);
@@ -49,8 +49,8 @@ public class ContentLookupReceiver implements Receiver {
              * Return a the K closest nodes to this content identifier
              * We create a NodeLookupReceiver and let this receiver handle this operation
              */
-            NodeLookupMessage lkpMsg = new NodeLookupMessage(msg.getOrigin(), msg.getParameters().getKey());
-            new NodeLookupReceiver(server, localNode, this.config).receive(lkpMsg, comm);
+            NodeLookupMessage lkpMsg = new NodeLookupMessage(msg.getSender(), msg.getParameters().getKey());
+            new NodeLookupReceiver(server, localKadNode, this.config).receive(lkpMsg, comm);
         }
     }
 

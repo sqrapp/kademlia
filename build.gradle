@@ -1,6 +1,6 @@
 buildscript {
 	ext {
-		springBootVersion = '2.0.0.RC1'
+		springBootVersion = '2.0.0.BUILD-SNAPSHOT'
 	}
 	repositories {
 		mavenCentral()
@@ -20,7 +20,7 @@ apply plugin: 'io.spring.dependency-management'
 apply plugin: 'docker'
 
 group = 'sireto'
-version = '1.0.0'
+version = '1.0.4'
 sourceCompatibility = 1.8
 
 repositories {
@@ -31,8 +31,21 @@ repositories {
 
 jar {
 	baseName = 'kademlia'
-	version =  '1.0.0'
+	version =  '1.0.4'
 }
+
+
+task fatjar(type: Jar) {
+    manifest {
+        attributes 'Main-Class': 'com.soriole.dht.KademliaConsoleApplication',
+                'main': 'com.soriole.dht.kademlia.KademliaConsoleApplication'
+    }
+    baseName = 'kademlia' + '-all'
+    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
+    with jar
+
+}
+
 
 dependencies {
 	compile('org.springframework.boot:spring-boot-starter-actuator')
@@ -40,6 +53,8 @@ dependencies {
 	compile('org.springframework.boot:spring-boot-starter-data-redis')
 	compile('org.springframework.boot:spring-boot-starter-websocket')
 	runtime('org.springframework.boot:spring-boot-devtools')
+    //  apache-cli library
+	compile 'commons-cli:commons-cli:20040117.000000'
 
 	compile group: 'com.google.code.gson', name: 'gson', version: '2.8.2'
 	compile 'org.jitsi:ice4j:1.0.0'

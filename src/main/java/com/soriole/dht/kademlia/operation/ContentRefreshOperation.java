@@ -7,7 +7,6 @@ import com.soriole.dht.kademlia.KadServer;
 import com.soriole.dht.kademlia.KademliaNode;
 import com.soriole.dht.kademlia.KademliaDHT;
 import com.soriole.dht.kademlia.KademliaStorageEntryMetadata;
-import com.soriole.dht.kademlia.StorageEntryMetadata;
 import com.soriole.dht.kademlia.exceptions.ContentNotFoundException;
 import com.soriole.dht.kademlia.message.Message;
 import com.soriole.dht.kademlia.message.StoreContentMessage;
@@ -68,13 +67,13 @@ public class ContentRefreshOperation implements Operation
             List<Node> closestNodes = this.localNode.getRoutingTable().findClosest(e.getKey(), this.config.k());
 
             /* Create the message */
-            Message msg = new StoreContentMessage(this.localNode.getNode(), dht.get(e));
+            Message msg = new StoreContentMessage(this.localNode.getLocalNode(), dht.get(e));
 
             /*Store the message on all of the K-Nodes*/
             for (Node n : closestNodes)
             {
                 /*We don't need to again store the content locally, it's already here*/
-                if (!n.equals(this.localNode.getNode()))
+                if (!n.equals(this.localNode.getLocalNode()))
                 {
                     /* Send a contentstore operation to the K-Closest nodes */
                     this.server.sendMessage(n, msg, null);
@@ -84,7 +83,7 @@ public class ContentRefreshOperation implements Operation
             /* Delete any content on this node that this node is not one of the K-Closest nodes to */
             try
             {
-                if (!closestNodes.contains(this.localNode.getNode()))
+                if (!closestNodes.contains(this.localNode.getLocalNode()))
                 {
                     this.dht.remove(e);
                 }
